@@ -545,6 +545,84 @@ body::before {
     <div id="txList" class="tx-list"></div>
   </div>
 
+  <!-- PAGE: BELASTING -->
+  <div class="page" id="pageBelasting">
+    <div class="ai-header-card" style="background:linear-gradient(135deg,rgba(92,143,255,.08),rgba(200,245,98,.08));border-color:rgba(92,143,255,.2);">
+      <div class="ai-badge" style="background:rgba(92,143,255,.1);border-color:rgba(92,143,255,.3);color:var(--accent2);">🧮 BELASTINGOPTIMALISATIE</div>
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:17px;margin-bottom:6px;">Optimale inkomensverdeling</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.6;">Bereken het beste netto gezinsinkomen op basis van de Nederlandse belastingregels 2025/2026.</div>
+    </div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px;">
+      <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:12px;color:var(--text);">Situatie instellen</div>
+      <div style="margin-bottom:10px;">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Partner 1 — bruto inkomen</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <input type="range" id="bInc1" min="0" max="200000" step="1000" value="80000" style="flex:1;">
+          <span style="font-size:13px;font-weight:700;color:var(--income);min-width:72px;text-align:right;" id="bInc1Out">€80.000</span>
+        </div>
+      </div>
+      <div style="margin-bottom:10px;">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Partner 2 — bruto inkomen</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <input type="range" id="bInc2" min="0" max="200000" step="1000" value="20000" style="flex:1;">
+          <span style="font-size:13px;font-weight:700;color:var(--income);min-width:72px;text-align:right;" id="bInc2Out">€20.000</span>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Kinderen</div>
+          <select id="bKinderen" style="width:100%;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:12px;font-family:'DM Mono',monospace;">
+            <option value="0">Geen</option><option value="1">1 kind</option><option value="2">2 kinderen</option><option value="3">3+</option>
+          </select>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Belastingjaar</div>
+          <select id="bJaar" style="width:100%;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:12px;font-family:'DM Mono',monospace;">
+            <option value="2025">2025</option><option value="2026">2026</option>
+          </select>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Eigen woning</div>
+          <select id="bWoning" style="width:100%;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:12px;font-family:'DM Mono',monospace;">
+            <option value="0">Huurder</option><option value="1">Eigen woning</option>
+          </select>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Hypotheekrente p/j</div>
+          <input type="number" id="bRente" value="0" min="0" max="30000" step="500" style="width:100%;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:12px;font-family:'DM Mono',monospace;">
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px;">
+      <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:10px;color:var(--text);">Huidige situatie</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="bMetrics"></div>
+    </div>
+
+    <div id="bAdvice"></div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px;">
+      <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:4px;color:var(--text);">Optimale verdeling</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:12px;">Netto gezinsinkomen bij verschillende inkomensverdelingen</div>
+      <div style="position:relative;width:100%;height:200px;"><canvas id="bChart" role="img" aria-label="Staafdiagram optimale inkomensverdeling"></canvas></div>
+    </div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px;">
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:11px;">
+          <thead><tr style="background:var(--surface2);">
+            <th style="padding:8px 10px;text-align:left;color:var(--muted);font-weight:500;border-bottom:1px solid var(--border);">P1</th>
+            <th style="padding:8px 10px;text-align:left;color:var(--muted);font-weight:500;border-bottom:1px solid var(--border);">P2</th>
+            <th style="padding:8px 10px;text-align:right;color:var(--muted);font-weight:500;border-bottom:1px solid var(--border);">Netto gezin</th>
+            <th style="padding:8px 10px;text-align:right;color:var(--muted);font-weight:500;border-bottom:1px solid var(--border);">Verschil</th>
+          </tr></thead>
+          <tbody id="bTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <!-- PAGE: AI -->
   <div class="page" id="pageAI">
     <div class="ai-header-card">
@@ -578,6 +656,10 @@ body::before {
   <div class="nav-item" id="nav-tx" onclick="showPage('pageTx','nav-tx')">
     <span class="nav-icon">📋</span>
     <span>Transacties</span>
+  </div>
+  <div class="nav-item" id="nav-belasting" onclick="showPage('pageBelasting','nav-belasting')">
+    <span class="nav-icon">🧮</span>
+    <span>Belasting</span>
   </div>
   <div class="nav-item" id="nav-ai" onclick="showPage('pageAI','nav-ai')">
     <span class="nav-icon">💡</span>
@@ -655,23 +737,76 @@ function switchTab(fmt) {
 
 // ── PDF PARSE (Rabobank PDF) ──────────────────────────────────────────────────
 async function parsePDF(file) {
-  const status = document.getElementById('pdfStatus');
-  status.style.display = 'block';
+  const zone = document.getElementById('zone-pdf');
+  const card = zone.querySelector('.upload-card');
+  card.style.display = 'none';
+
+  const progress = document.createElement('div');
+  progress.id = 'pdfProgress';
+  progress.innerHTML = `
+    <div style="background:var(--surface);border:2px dashed var(--accent);border-radius:12px;padding:24px;text-align:center;margin:16px 0;">
+      <div class="spinner" style="margin:0 auto 10px;"></div>
+      <div id="pdfProgressText" style="font-size:12px;color:var(--accent);">PDF openen...</div>
+      <div style="background:var(--border);border-radius:4px;height:4px;margin-top:10px;overflow:hidden;">
+        <div id="pdfProgressBar" style="background:var(--accent);height:100%;width:0%;border-radius:4px;transition:width .3s;"></div>
+      </div>
+    </div>`;
+  zone.insertBefore(progress, zone.querySelector('.howto-card'));
+
+  const setProgress = (pct, text) => {
+    const bar = document.getElementById('pdfProgressBar');
+    const txt = document.getElementById('pdfProgressText');
+    if (bar) bar.style.width = pct + '%';
+    if (txt) txt.textContent = text;
+  };
+
   try {
     const buf = await file.arrayBuffer();
+    setProgress(20, 'PDF inladen...');
     const pdf = await pdfjsLib.getDocument({data: buf}).promise;
     let fullText = '';
     for (let p = 1; p <= pdf.numPages; p++) {
+      setProgress(20 + Math.round((p / pdf.numPages) * 70), `Pagina ${p} van ${pdf.numPages} lezen...`);
       const page = await pdf.getPage(p);
       const content = await page.getTextContent();
       fullText += content.items.map(i => i.str).join(' ') + '\n';
     }
-    status.style.display = 'none';
-    return parseRaboPDFText(fullText);
+    setProgress(100, 'Verwerken...');
+    const txs = parseRaboPDFText(fullText);
+
+    if (progress) progress.remove();
+    card.style.display = '';
+
+    if (!txs.length) {
+      showUploadError(zone, 'Geen transacties herkend in dit PDF. Probeer MT940 via rabo.nl (desktop) of laad de demo data.');
+      return [];
+    }
+    return txs;
   } catch(e) {
-    status.style.display = 'none';
-    throw e;
+    if (progress) progress.remove();
+    card.style.display = '';
+    showUploadError(zone, 'PDF kon niet worden gelezen. Controleer of het een geldig Rabobank afschrift is.');
+    return [];
   }
+}
+
+function showUploadError(container, msg) {
+  const existing = document.getElementById('uploadError');
+  if (existing) existing.remove();
+  const el = document.createElement('div');
+  el.id = 'uploadError';
+  el.innerHTML = `
+    <div style="background:var(--surface);border:1px solid var(--expense);border-left:3px solid var(--expense);border-radius:8px;padding:12px;margin:8px 0;">
+      <div style="font-size:12px;color:var(--expense);font-weight:700;margin-bottom:4px;">Niet gelukt</div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.6;margin-bottom:8px;">${msg}</div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="switchTab('mt940')" style="background:rgba(200,245,98,.1);border:1px solid var(--accent);border-radius:6px;padding:5px 10px;font-size:11px;color:var(--accent);cursor:pointer;font-family:'DM Mono',monospace;">Probeer MT940</button>
+        <button onclick="loadDemo();document.getElementById('uploadError')?.remove();" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:11px;color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;">Demo laden</button>
+      </div>
+    </div>`;
+  const howto = container.querySelector('.howto-card');
+  if (howto) container.insertBefore(el, howto);
+  else container.appendChild(el);
 }
 
 function parseRaboPDFText(text) {
@@ -857,22 +992,19 @@ function parseCSV(text) {
 document.getElementById('filePdf').addEventListener('change', async e => {
   const file = e.target.files[0];
   if (!file) return;
-  try {
-    const txs = await parsePDF(file);
-    if (!txs.length) { alert('Geen transacties gevonden in de PDF.\n\nTip: Probeer het MT940 formaat via desktop.'); return; }
-    process(txs);
-  } catch(err) {
-    alert('Kon de PDF niet lezen. Probeer een ander formaat of de demo.');
-  }
+  e.target.value = '';
+  const txs = await parsePDF(file);
+  if (txs.length) process(txs);
 });
 
 document.getElementById('fileMt940').addEventListener('change', e => {
   const file = e.target.files[0];
   if (!file) return;
+  e.target.value = '';
   const reader = new FileReader();
   reader.onload = ev => {
     const txs = parseMT940(ev.target.result);
-    if (!txs.length) { alert('Geen transacties gevonden. Controleer of dit een MT940 bestand is.'); return; }
+    if (!txs.length) { showUploadError(document.getElementById('zone-mt940'), 'Geen transacties gevonden. Controleer of dit een MT940 (.swi) bestand is.'); return; }
     process(txs);
   };
   reader.readAsText(file, 'UTF-8');
@@ -881,10 +1013,11 @@ document.getElementById('fileMt940').addEventListener('change', e => {
 document.getElementById('fileCsv').addEventListener('change', e => {
   const file = e.target.files[0];
   if (!file) return;
+  e.target.value = '';
   const reader = new FileReader();
   reader.onload = ev => {
     const txs = parseCSV(ev.target.result);
-    if (!txs.length) { alert('Geen transacties gevonden. Controleer of dit een Rabobank CSV is.'); return; }
+    if (!txs.length) { showUploadError(document.getElementById('zone-csv'), 'Geen transacties gevonden. Controleer of dit een Rabobank CSV is.'); return; }
     process(txs);
   };
   reader.readAsText(file, 'UTF-8');
@@ -920,10 +1053,12 @@ function process(txs) {
   document.getElementById('bottomNav').style.display = 'flex';
   document.getElementById('resetBtn').style.display = 'flex';
   document.getElementById('installBanner').classList.add('hidden');
+  document.getElementById('uploadError')?.remove();
   showPage('pageDash', 'nav-dash');
   renderDash();
   renderTxList();
   renderAnonPrompt();
+  calcBelasting();
 }
 
 function fmt(n) { return new Intl.NumberFormat('nl-NL',{style:'currency',currency:'EUR'}).format(n); }
@@ -1074,20 +1209,145 @@ function showPage(pageId, navId) {
   document.getElementById('scrollArea').scrollTop = 0;
 }
 
+// ── BELASTING MODULE ──────────────────────────────────────────────────────────
+const TAX = {
+  2025: { schijven:[[38441,.3697],[76817,.3797],[Infinity,.495]], ahk_max:3362, ahk_start:24813, ahk_einde:75518, ak_max:5052, ak_g1:11491, ak_g2:24821, ak_g3:39957, ak_g4:124935, ak_op:.3201, ak_af:.0601, iack_max:2694, iack_grens:5030, iack_pct:.1145 },
+  2026: { schijven:[[38441,.3582],[76817,.3748],[Infinity,.495]], ahk_max:3416, ahk_start:25000, ahk_einde:77000, ak_max:5205, ak_g1:11491, ak_g2:25000, ak_g3:40000, ak_g4:125000, ak_op:.32, ak_af:.06, iack_max:2813, iack_grens:5100, iack_pct:.115 }
+};
+
+function bBelasting(bruto, t) {
+  let rest = bruto, bel = 0, prev = 0;
+  for (const [g, r] of t.schijven) { const b = Math.min(rest, g-prev); if(b<=0) break; bel+=b*r; rest-=b; prev=g; if(rest<=0) break; }
+  return bel;
+}
+function bAHK(bruto, t) {
+  if (bruto <= t.ahk_start) return t.ahk_max;
+  if (bruto >= t.ahk_einde) return 0;
+  return Math.max(0, t.ahk_max - (bruto-t.ahk_start)/(t.ahk_einde-t.ahk_start)*t.ahk_max);
+}
+function bAK(bruto, t) {
+  if (bruto < t.ak_g1) return 0;
+  let ak = Math.min(t.ak_max, (bruto-t.ak_g1)*t.ak_op);
+  if (bruto > t.ak_g3) ak = Math.max(0, t.ak_max - (bruto-t.ak_g3)*t.ak_af);
+  if (bruto > t.ak_g4) ak = 0;
+  return Math.max(0, ak);
+}
+function bIACK(bruto, kids, t) { return kids===0||bruto<t.iack_grens ? 0 : Math.min(t.iack_max,(bruto-t.iack_grens)*t.iack_pct); }
+function bNetto(bruto, kids, rente, t) {
+  const bel = bBelasting(Math.max(0, bruto-rente), t);
+  return bruto - Math.max(0, bel - bAHK(bruto,t) - bAK(bruto,t) - bIACK(bruto,kids,t));
+}
+
+let bChartInst = null;
+
+function calcBelasting() {
+  const inc1 = parseInt(document.getElementById('bInc1').value);
+  const inc2 = parseInt(document.getElementById('bInc2').value);
+  const kids  = parseInt(document.getElementById('bKinderen').value);
+  const jaar  = parseInt(document.getElementById('bJaar').value);
+  const woning= parseInt(document.getElementById('bWoning').value);
+  const rente = woning ? (parseInt(document.getElementById('bRente').value)||0) : 0;
+  const t = TAX[jaar];
+
+  document.getElementById('bInc1Out').textContent = fmtB(inc1);
+  document.getElementById('bInc2Out').textContent = fmtB(inc2);
+
+  const n1 = bNetto(inc1, kids, rente, t);
+  const n2 = bNetto(inc2, kids, 0, t);
+  const totaal = n1 + n2;
+  const totBruto = inc1 + inc2;
+  const druk1 = inc1>0 ? (1-n1/inc1)*100 : 0;
+  const druk2 = inc2>0 ? (1-n2/inc2)*100 : 0;
+  const drukG  = totBruto>0 ? (1-totaal/totBruto)*100 : 0;
+
+  document.getElementById('bMetrics').innerHTML = `
+    <div class="stat-card s-income"><div class="stat-label">Netto P1</div><div class="stat-value pos">${fmtB(n1)}</div><div class="stat-sub">${druk1.toFixed(1)}% belastingdruk</div></div>
+    <div class="stat-card s-expense"><div class="stat-label">Netto P2</div><div class="stat-value pos">${fmtB(n2)}</div><div class="stat-sub">${druk2.toFixed(1)}% belastingdruk</div></div>
+    <div class="stat-card s-balance"><div class="stat-label">Netto gezin</div><div class="stat-value neu">${fmtB(totaal)}</div><div class="stat-sub">samen</div></div>
+    <div class="stat-card s-savings"><div class="stat-label">Gem. druk</div><div class="stat-value neu">${drukG.toFixed(1)}%</div><div class="stat-sub">over beide inkomens</div></div>`;
+
+  let adv = '';
+  if (inc1 > 76817) adv += `<div class="tip-item warn" style="margin-bottom:8px;"><span class="tip-icon" style="font-size:16px;">⚠️</span><div class="tip-body"><strong>Hoogste schijf (49,5%)</strong><p>Partner 1 betaalt 49,5% over het deel boven €76.817. Minder werken of uren overhevelen naar P2 kan netto meer opleveren.</p></div></div>`;
+  if (inc2 < 10000 && inc2 > 0) adv += `<div class="tip-item save" style="margin-bottom:8px;"><span class="tip-icon" style="font-size:16px;">💡</span><div class="tip-body"><strong>Arbeidskorting onbenut</strong><p>Partner 2 benut de arbeidskorting nog niet maximaal. Tot €25.000 loopt die snel op — meer uren werken levert netto veel op.</p></div></div>`;
+  if (adv) document.getElementById('bAdvice').innerHTML = `<div style="margin-bottom:12px;">${adv}</div>`;
+  else document.getElementById('bAdvice').innerHTML = '';
+
+  const total = inc1 + inc2;
+  const stap = Math.max(5000, Math.round(total/16/5000)*5000);
+  const rows = [];
+  for (let p1 = 0; p1 <= total; p1 += stap) rows.push(p1);
+  if (!rows.includes(total)) rows.push(total);
+
+  const data = rows.map(p1 => ({ p1, p2: total-p1, n: Math.round(bNetto(p1,kids,rente,t) + bNetto(total-p1,kids,0,t)) }));
+  const best = data.reduce((a,b) => b.n>a.n ? b : a);
+  const labels = data.map(r => `${Math.round(r.p1/1000)}k`);
+  const vals   = data.map(r => r.n);
+  const colors = data.map(r => r.p1===best.p1 ? '#62e8a0' : '#2a2d3a');
+
+  if (bChartInst) bChartInst.destroy();
+  bChartInst = new Chart(document.getElementById('bChart'), {
+    type:'bar',
+    data:{ labels, datasets:[{ data:vals, backgroundColor:colors, borderRadius:4 }] },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx => ' '+fmtB(ctx.parsed.y), title: ctx => 'P1: '+data[ctx[0].dataIndex].p1.toLocaleString('nl-NL')+' · P2: '+data[ctx[0].dataIndex].p2.toLocaleString('nl-NL') }, backgroundColor:'#1e2028', titleColor:'#e8eaf0', bodyColor:'#6b7080', borderColor:'#2a2d3a', borderWidth:1 }},
+    scales:{ x:{grid:{display:false},ticks:{color:'#6b7080',font:{size:9}}}, y:{grid:{color:'#2a2d3a'},ticks:{color:'#6b7080',font:{size:9},callback:v=>'€'+Math.round(v/1000)+'k'}} } }
+  });
+
+  document.getElementById('bTableBody').innerHTML = data.map(r => {
+    const diff = r.n - totaal;
+    const isBest = r.p1===best.p1;
+    const isCurrent = Math.abs(r.p1-inc1)<stap/2;
+    return `<tr style="${isBest&&!isCurrent?'background:rgba(98,232,160,.08);':''} border-bottom:1px solid var(--border);">
+      <td style="padding:7px 10px;color:var(--text);">${fmtB(r.p1)}${isCurrent?'<span style="background:rgba(200,245,98,.15);color:var(--accent);font-size:9px;padding:1px 6px;border-radius:10px;margin-left:4px;">nu</span>':''}</td>
+      <td style="padding:7px 10px;color:var(--text);">${fmtB(r.p2)}</td>
+      <td style="padding:7px 10px;text-align:right;color:var(--text);font-family:'Syne',sans-serif;font-weight:700;">${fmtB(r.n)}</td>
+      <td style="padding:7px 10px;text-align:right;color:${diff>50?'#62e8a0':diff<-50?'#ff6b6b':'var(--muted)'};">${Math.abs(diff)>50?(diff>0?'+':'')+fmtB(diff):'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function fmtB(n) { return '€'+Math.round(n).toLocaleString('nl-NL'); }
+
+['bInc1','bInc2','bKinderen','bJaar','bWoning','bRente'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', calcBelasting);
+});
+
 // ── RESET ─────────────────────────────────────────────────────────────────────
 function resetApp() {
   allTx = [];
+  filteredCat = 'Alle';
   Object.values(charts).forEach(c=>c.destroy()); charts={};
+  if (bChartInst) { bChartInst.destroy(); bChartInst = null; }
   document.getElementById('bottomNav').style.display = 'none';
   document.getElementById('resetBtn').style.display = 'none';
   document.getElementById('aiResultArea').innerHTML = '';
-  document.getElementById('fileInput').value = '';
+  document.getElementById('anonPreview').textContent = 'Upload eerst je bankafschrift...';
+  document.getElementById('filterScroll').innerHTML = '';
+  document.getElementById('txList').innerHTML = '';
+  document.getElementById('bMetrics').innerHTML = '';
+  document.getElementById('bAdvice').innerHTML = '';
+  document.getElementById('bTableBody').innerHTML = '';
+  document.getElementById('uploadError')?.remove();
+  document.getElementById('filePdf').value = '';
+  document.getElementById('fileMt940').value = '';
+  document.getElementById('fileCsv').value = '';
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('pageUpload').classList.add('active');
 }
 
-// ── DARK/LIGHT TOGGLE (bonus) ─────────────────────────────────────────────────
-function toggleDark() {}
+// ── DARK/LIGHT TOGGLE ────────────────────────────────────────────────────────
+function toggleDark() {
+  const r = document.documentElement;
+  const isDark = r.style.getPropertyValue('--bg') !== '#ffffff';
+  if (isDark) {
+    r.style.setProperty('--bg','#f5f5f7'); r.style.setProperty('--surface','#ffffff');
+    r.style.setProperty('--surface2','#f0f0f2'); r.style.setProperty('--border','#d0d0d8');
+    r.style.setProperty('--text','#1a1a2e'); r.style.setProperty('--muted','#666680');
+  } else {
+    r.style.setProperty('--bg','#0d0f14'); r.style.setProperty('--surface','#161820');
+    r.style.setProperty('--surface2','#1e2028'); r.style.setProperty('--border','#2a2d3a');
+    r.style.setProperty('--text','#e8eaf0'); r.style.setProperty('--muted','#6b7080');
+  }
+}
 </script>
 </body>
 </html>
