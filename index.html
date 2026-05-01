@@ -7,734 +7,446 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Budget">
-<meta name="description" content="Analyseer je bankafschriften privé op je telefoon">
 <title>Budget Inzicht</title>
-
-<!-- PWA Manifest inline -->
 <script>
-const manifestData = {
-  name: "Budget Inzicht",
-  short_name: "Budget",
-  description: "Persoonlijke financiële analyse",
-  start_url: "./",
-  display: "standalone",
-  background_color: "#0d0f14",
-  theme_color: "#0d0f14",
-  orientation: "portrait-primary",
-  icons: [
-    { src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAIAAADdvvtQAAAFTklEQVR4nO3csXEUTRCG4RWFS+GAowSIBBcsMiEAAiACUsACl0hIAAeTBDCm6moLlZB03/T01z3v48O/1/uqZ3X3HzcvXr46gGs9y74A1EZAkBAQJAQECQFBQkCQEBAkBAQJAUFCQJAQECQEBAkBQUJAkBAQJAQECQFBQkCQEBAkBAQJAUFCQJAQECTPsy/AxY9f7576R97efo+4klpu9vxi4RW5PMaGSW0UUFA099kkpuYBLY7mPo1j6hmQSTd39SupW0C26Zx1yqhPQCXSOeuRUYeAyqVzVj2j2gGVTuesbkZVA2qTzlnFjOoF1DKds1oZVQqofTpnVTIq82HqVvUcdV5vjYCqTHOuEq/a/QgrMcRozseZ9QainsF5Dr4BOU9tPdtpOB5htsNy4Hac2W0g6vk/t/l4BeQ2HU9WUzIKyGou5nxm5RKQz0SqMJmYRUAmsyjHYW75ATlMoa706SUHlP76G8idYWZA1DNL4iTzjzCUlhYQ62eurHnmBEQ9EVKmmhAQ9cRZP1uegSBZHRDrJ9riCS8NiHrWWDnndQFRz0rLps0zECSLAmL9rLdm5mwgSFYExPrJsmDybCBIwgNi/eSKnj//TvS/HvzeDD8SZ7HfC6sy66u/bNX+BT5o6w2kj/XyN1QpabrADeQ806CfyA1f8nYbKPSrweMvd85ouqjfwjyHuOaL5W5fXx+C7sguG2jxTd1nFYVsILfBZa0Et1UUcV/6vxOdexfdGpqueUAO98/hGuLMD8jn/PK5cz5XMv3utN1APvdscLueWXoG5Hm3PK9K1DAg5/vkfG3XmRyQzwMQ7jP3HnXbQP4/4v5X+CStAqpyb6pc52O0CgjrzQwo9wGo1o917tVOvFNsIEiaBFRr/QwVr/muJgEhCwFB0iGgumdB3Su/mBYQ70HXMut+ddhASERAkJQPqPpjRPXrLx8QchEQJLt8LyzO+0+/n/pHvn16HXElKdhAkBAQJAQECQFBQkCQEBAkBARJ+YCq/18A1a+/fEDI1eGd6P/8EFf/qNLftA3Erapl1v3iCMtU/QHoICCICAgSAkrT4Pw6CAiimQHxi9jjtfmHKNhAkBBQgh5PP0OHd6Kv8OHn56f+ka9vPkZcSXWTNxCPQf7m3iOOMEgICBICgmR+QDwGOZt+d5pvoE6/MHtqHtBBQ8FCAnI7xWhoiLgv/TfQ8OPXOzKKEBWQ2xIadm4o6I5s91HGaOjLn+zr6CLwCPNcQnuKuxe7PAMF2flMHGKPsLe33/uNuNwrCj0KtnsGulq5btYIP8J4EsoVPX+egSBZERBLKMuCybOBIFkUEEtovTUzZwNBsi4gltBKy6a9dAPR0Bor57z6CKOhaIsnfPPi5auV/72Dt3SDLQ4o4SGaJRRn/WxzfgujoQgpU037NZ6G5sqaJ+8DQZIZEEtolsRJJm8gGtLlzjD/CKMhRfr08gM6DKZQlMPcLAI6PGZRi8nEXAI6bCZSgs+sjAI6nObizGpKXgEdZtMx5DafhA9TH4nPXP/hls5gt4EuPOeVxXYavgEdxlNbzHkOvkfY2bbHmXM6g/UGuvCfY4QSr7pGQEeRaU5U5fXWOMLO2h9nVdIZ6gU0tMyoVjpD1YCGNhlVTGeoHdBQOqO66QwdAhrKZVQ9naFPQEOJjHqkM3QLaLDNqFM6Q8+ALkxK6tfNRfOAzhbH1Dias40COguKaZNozjYN6K4rktowl7sICJIyH6bCEwFBQkCQEBAkBAQJAUFCQJAQECQEBAkBQUJAkBAQJAQECQFBQkCQEBAkBAQJAUFCQJAQECQEBAkBQfIXAgNmFieTZZ8AAAAASUVORK5CYII=", sizes: "192x192", type: "image/png", purpose: "any maskable" },
-    { src: "data:image/png;base64,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", sizes: "512x512", type: "image/png", purpose: "any maskable" }
-  ]
-};
-const blob = new Blob([JSON.stringify(manifestData)], {type: "application/json"});
-const manifestURL = URL.createObjectURL(blob);
-const link = document.createElement("link");
-link.rel = "manifest";
-link.href = manifestURL;
-document.currentScript.parentNode.insertBefore(link, document.currentScript);
+const _md={name:"Budget Inzicht",short_name:"Budget",display:"standalone",background_color:"#0d0f14",theme_color:"#0d0f14",start_url:"./",icons:[{src:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAIAAADdvvtQAAAFTklEQVR4nO3csXEUTRCG4RWFS+GAowSIBBcsMiEAAiACUsACl0hIAAeTBDCm6moLlZB03/T01z3v48O/1/uqZ3X3HzcvXr46gGs9y74A1EZAkBAQJAQECQFBQkCQEBAkBAQJAUFCQJAQECQEBAkBQUJAkBAQJAQECQFBQkCQEBAkBAQJAUFCQJAQECTPsy/AxY9f7576R97efo+4klpu9vxi4RW5PMaGSW0UUFA099kkpuYBLY7mPo1j6hmQSTd39SupW0C26Zx1yqhPQCXSOeuRUYeAyqVzVj2j2gGVTuesbkZVA2qTzlnFjOoF1DKds1oZVQqofTpnVTIq82HqVvUcdV5vjYCqTHOuEq/a/QgrMcRozseZ9QainsF5Dr4BOU9tPdtpOB5htsNy4Hac2W0g6vk/t/l4BeQ2HU9WUzIKyGou5nxm5RKQz0SqMJmYRUAmsyjHYW75ATlMoa706SUHlP76G8idYWZA1DNL4iTzjzCUlhYQ62eurHnmBEQ9EVKmmhAQ9cRZP1uegSBZHRDrJ9riCS8NiHrWWDnndQFRz0rLps0zECSLAmL9rLdm5mwgSFYExPrJsmDybCBIwgNi/eSKnj//TvS/HvzeDD8SZ7HfC6sy66u/bNX+BT5o6w2kj/XyN1QpabrADeQ806CfyA1f8nYbKPSrweMvd85ouqjfwjyHuOaL5W5fXx+C7sguG2jxTd1nFYVsILfBZa0Et1UUcV/6vxOdexfdGpqueUAO98/hGuLMD8jn/PK5cz5XMv3utN1APvdscLueWXoG5Hm3PK9K1DAg5/vkfG3XmRyQzwMQ7jP3HnXbQP4/4v5X+CStAqpyb6pc52O0CgjrzQwo9wGo1o917tVOvFNsIEiaBFRr/QwVr/muJgEhCwFB0iGgumdB3Su/mBYQ70HXMut+ddhASERAkJQPqPpjRPXrLx8QchEQJLt8LyzO+0+/n/pHvn16HXElKdhAkBAQJAQECQFBQkCQEBAkBARJ+YCq/18A1a+/fEDI1eGd6P/8EFf/qNLftA3Erapl1v3iCMtU/QHoICCICAgSAkrT4Pw6CAiimQHxi9jjtfmHKNhAkBBQgh5PP0OHd6Kv8OHn56f+ka9vPkZcSXWTNxCPQf7m3iOOMEgICBICgmR+QDwGOZt+d5pvoE6/MHtqHtBBQ8FCAnI7xWhoiLgv/TfQ8OPXOzKKEBWQ2xIadm4o6I5s91HGaOjLn+zr6CLwCPNcQnuKuxe7PAMF2flMHGKPsLe33/uNuNwrCj0KtnsGulq5btYIP8J4EsoVPX+egSBZERBLKMuCybOBIFkUEEtovTUzZwNBsi4gltBKy6a9dAPR0Bor57z6CKOhaIsnfPPi5auV/72Dt3SDLQ4o4SGaJRRn/WxzfgujoQgpU037NZ6G5sqaJ+8DQZIZEEtolsRJJm8gGtLlzjD/CKMhRfr08gM6DKZQlMPcLAI6PGZRi8nEXAI6bCZSgs+sjAI6nObizGpKXgEdZtMx5DafhA9TH4nPXP/hls5gt4EuPOeVxXYavgEdxlNbzHkOvkfY2bbHmXM6g/UGuvCfY4QSr7pGQEeRaU5U5fXWOMLO2h9nVdIZ6gU0tMyoVjpD1YCGNhlVTGeoHdBQOqO66QwdAhrKZVQ9naFPQEOJjHqkM3QLaLDNqFM6Q8+ALkxK6tfNRfOAzhbH1Dias40COguKaZNozjYN6K4rktowl7sICJIyH6bCEwFBQkCQEBAkBAQJAUFCQJAQECQEBAkBQUJAkBAQJAQECQFBQkCQEBAkBAQJAUFCQJAQECQEBAkBQfIXAgNmFieTZZ8AAAAASUVORK5CYII=",sizes:"192x192",type:"image/png"},{src:"data:image/png;base64,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",sizes:"512x512",type:"image/png"}]};
+const _mb=new Blob([JSON.stringify(_md)],{type:"application/json"});
+const _ml=document.createElement("link");_ml.rel="manifest";_ml.href=URL.createObjectURL(_mb);document.currentScript.before(_ml);
 </script>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&display=swap');
+:root{--bg:#0d0f14;--surface:#161820;--surface2:#1e2028;--border:#2a2d3a;--accent:#c8f562;--accent2:#5c8fff;--text:#e8eaf0;--muted:#6b7080;--income:#62e8a0;--expense:#ff6b6b;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;}
+body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;display:flex;flex-direction:column;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(200,245,98,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(200,245,98,.03) 1px,transparent 1px);background-size:32px 32px;pointer-events:none;z-index:0;}
 
-:root {
-  --bg: #0d0f14;
-  --surface: #161820;
-  --surface2: #1e2028;
-  --border: #2a2d3a;
-  --accent: #c8f562;
-  --accent2: #5c8fff;
-  --text: #e8eaf0;
-  --muted: #6b7080;
-  --income: #62e8a0;
-  --expense: #ff6b6b;
-  --safe: env(safe-area-inset-bottom, 0px);
-}
+/* TOP BAR */
+.topbar{position:fixed;top:0;left:0;right:0;height:calc(52px + env(safe-area-inset-top,0px));padding-top:env(safe-area-inset-top,0px);background:rgba(13,15,20,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding-left:14px;padding-right:14px;z-index:100;}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:17px;display:flex;align-items:center;gap:7px;}
+.logo-dot{width:7px;height:7px;background:var(--accent);border-radius:50%;box-shadow:0 0 8px var(--accent);}
+.rabo-tag{font-size:9px;color:#ff6600;background:rgba(255,102,0,.12);border:1px solid rgba(255,102,0,.3);border-radius:20px;padding:2px 8px;margin-left:6px;font-weight:500;}
+.topbar-right{display:flex;gap:6px;align-items:center;}
+.ib{width:32px;height:32px;background:var(--surface);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;color:var(--text);transition:.2s;}
+.ib:active{transform:scale(.88);}
 
-* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-html, body { height:100%; overflow:hidden; }
+/* SCROLL */
+.scroll-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-top:calc(52px + env(safe-area-inset-top,0px));padding-bottom:calc(62px + env(safe-area-inset-bottom,0px));position:relative;z-index:1;scrollbar-width:none;}
+.scroll-area::-webkit-scrollbar{display:none;}
 
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'DM Mono', monospace;
-  display: flex;
-  flex-direction: column;
-}
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;height:calc(58px + env(safe-area-inset-bottom,0px));padding-bottom:env(safe-area-inset-bottom,0px);background:rgba(13,15,20,.97);backdrop-filter:blur(12px);border-top:1px solid var(--border);display:flex;z-index:100;}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:var(--muted);font-size:9px;-webkit-user-select:none;}
+.nav-item.active{color:var(--accent);}
+.nav-item:active{transform:scale(.88);}
+.nav-icon{font-size:18px;line-height:1;}
 
-body::before {
-  content:'';
-  position:fixed; inset:0;
-  background-image:
-    linear-gradient(rgba(200,245,98,.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(200,245,98,.03) 1px, transparent 1px);
-  background-size: 32px 32px;
-  pointer-events:none; z-index:0;
-}
+/* PAGES */
+.page{display:none;padding:14px;}
+.page.active{display:block;}
 
-/* ── TOP BAR ── */
-.topbar {
-  position: fixed; top:0; left:0; right:0;
-  height: calc(56px + env(safe-area-inset-top, 0px));
-  padding-top: env(safe-area-inset-top, 0px);
-  background: rgba(13,15,20,0.92);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-left: 16px;
-  padding-right: 16px;
-  z-index: 100;
-}
-.logo {
-  font-family: 'Syne', sans-serif;
-  font-weight: 800;
-  font-size: 18px;
-  display:flex; align-items:center; gap:8px;
-}
-.logo-dot { width:8px;height:8px;background:var(--accent);border-radius:50%;box-shadow:0 0 10px var(--accent); }
-.topbar-actions { display:flex; gap:8px; }
-.icon-btn {
-  width:36px; height:36px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius:8px;
-  display:flex; align-items:center; justify-content:center;
-  font-size:16px;
-  cursor:pointer; color:var(--text);
-  transition: all .2s;
-}
-.icon-btn:active { transform:scale(.92); background:var(--surface2); }
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;}
+.card-title{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--text);margin-bottom:10px;}
 
-/* ── SCROLL AREA ── */
-.scroll-area {
-  flex:1;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  padding-top: calc(56px + env(safe-area-inset-top, 0px));
-  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
-  position: relative; z-index:1;
-}
+/* UPLOAD */
+.rabo-badge{background:rgba(255,102,0,.1);border:1px solid rgba(255,102,0,.3);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.rabo-badge-icon{width:32px;height:32px;background:#ff6600;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.rabo-badge-text{font-size:12px;color:#ff8833;font-weight:500;}
+.rabo-badge-sub{font-size:10px;color:var(--muted);}
+.upload-hero{text-align:center;padding:24px 16px 16px;}
+.upload-hero h1{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:6px;}
+.upload-hero p{color:var(--muted);font-size:12px;line-height:1.7;}
+.fmt-tabs{display:flex;gap:7px;margin-bottom:12px;}
+.fmt-tab{flex:1;padding:9px 4px;border-radius:9px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;transition:.2s;text-align:center;}
+.fmt-tab.active{border-color:var(--accent);color:var(--accent);background:rgba(200,245,98,.07);}
+.upload-card{background:var(--surface);border:2px dashed var(--border);border-radius:14px;padding:28px 20px;text-align:center;margin-bottom:10px;cursor:pointer;position:relative;transition:.3s;}
+.upload-card:hover{border-color:var(--accent);}
+.upload-card input{position:absolute;inset:0;opacity:0;cursor:pointer;}
+.upload-card-icon{font-size:36px;margin-bottom:10px;}
+.upload-card-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:5px;}
+.upload-card-sub{color:var(--muted);font-size:11px;line-height:1.6;}
+.btn-ghost{width:100%;padding:13px;border-radius:11px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-family:'DM Mono',monospace;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;margin-top:8px;}
+.btn-ghost:active{background:var(--surface2);}
+.howto-card{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:14px;margin-bottom:10px;}
+.howto-title{color:var(--accent);font-size:10px;letter-spacing:.06em;margin-bottom:10px;font-weight:500;}
+.howto-step{display:flex;gap:9px;padding:7px 0;border-bottom:1px solid var(--border);}
+.howto-step:last-child{border-bottom:none;}
+.step-n{font-family:'Syne',sans-serif;font-weight:800;color:var(--border);font-size:17px;line-height:1;min-width:22px;}
+.step-t{font-size:11px;color:var(--muted);line-height:1.6;}
+.step-t strong{color:var(--text);display:block;font-size:11px;}
 
-/* ── BOTTOM NAV ── */
-.bottom-nav {
-  position:fixed; bottom:0; left:0; right:0;
-  height: calc(60px + env(safe-area-inset-bottom, 0px));
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  background: rgba(13,15,20,.95);
-  backdrop-filter: blur(12px);
-  border-top: 1px solid var(--border);
-  display:flex; align-items:flex-start;
-  z-index:100;
-}
-.nav-item {
-  flex:1; display:flex; flex-direction:column;
-  align-items:center; justify-content:center;
-  padding-top:10px; gap:4px;
-  cursor:pointer; color:var(--muted);
-  transition: color .2s;
-  font-size:10px; letter-spacing:.03em;
-  -webkit-user-select:none;
-}
-.nav-item.active { color:var(--accent); }
-.nav-item:active { transform:scale(.9); }
-.nav-icon { font-size:20px; line-height:1; }
-
-/* ── PAGES ── */
-.page { display:none; padding:16px; }
-.page.active { display:block; }
-
-/* ── UPLOAD PAGE ── */
-.upload-hero {
-  text-align:center;
-  padding: 32px 16px 24px;
-}
-.upload-hero-icon { font-size:64px; margin-bottom:16px; display:block; }
-.upload-hero h1 {
-  font-family:'Syne',sans-serif;
-  font-size:24px; font-weight:800;
-  margin-bottom:8px;
-}
-.upload-hero p { color:var(--muted); font-size:13px; line-height:1.7; }
-
-.upload-card {
-  background: var(--surface);
-  border: 2px dashed var(--border);
-  border-radius:16px;
-  padding: 32px 24px;
-  text-align:center;
-  margin: 16px 0;
-  transition: all .3s;
-  cursor:pointer;
-  position:relative;
-}
-.upload-card.drag { border-color:var(--accent); background:var(--surface2); }
-.upload-card input { position:absolute;inset:0;opacity:0;cursor:pointer; }
-.upload-card-icon { font-size:40px; margin-bottom:12px; }
-.upload-card-title { font-family:'Syne',sans-serif; font-size:16px; font-weight:700; margin-bottom:6px; }
-.upload-card-sub { color:var(--muted); font-size:12px; line-height:1.6; }
-
-.btn-full {
-  width:100%; padding:16px;
-  border-radius:12px; border:none;
-  font-family:'DM Mono',monospace;
-  font-size:14px; font-weight:500;
-  cursor:pointer;
-  display:flex; align-items:center; justify-content:center; gap:8px;
-  transition: all .2s;
-}
-.btn-primary { background:var(--accent); color:#0d0f14; font-weight:600; }
-.btn-primary:active { transform:scale(.97); background:#d6ff70; }
-.btn-ghost { background:var(--surface); color:var(--muted); border:1px solid var(--border); margin-top:10px; }
-.btn-ghost:active { background:var(--surface2); }
-
-.howto-card {
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:16px;
-  margin-bottom:16px;
-}
-.howto-title { color:var(--accent); font-size:12px; letter-spacing:.05em; margin-bottom:12px; font-weight:500; }
-.howto-step { display:flex; gap:10px; padding:8px 0; border-bottom:1px solid var(--border); }
-.howto-step:last-child { border-bottom:none; }
-.step-n { font-family:'Syne',sans-serif; font-weight:800; color:var(--border); font-size:18px; line-height:1; min-width:24px; }
-.step-t { font-size:12px; color:var(--muted); line-height:1.6; }
-.step-t strong { color:var(--text); display:block; margin-bottom:2px; font-size:12px; }
-
-/* ── FORMAT TABS ── */
-.fmt-tab {
-  flex:1; padding:10px 6px;
-  border-radius:10px;
-  border:1px solid var(--border);
-  background:transparent;
-  color:var(--muted);
-  font-family:'DM Mono',monospace;
-  font-size:12px;
-  cursor:pointer;
-  transition:all .2s;
-}
-.fmt-tab.active {
-  border-color:var(--accent);
-  color:var(--accent);
-  background:rgba(200,245,98,.08);
-}
-.fmt-tab:active { transform:scale(.95); }
-
-/* ── STATS ── */
-.stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
-.stat-card {
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:14px;
-  position:relative; overflow:hidden;
-}
-.stat-card::after { content:''; position:absolute; bottom:0;left:0;right:0;height:2px; }
-.stat-card.s-income::after { background:var(--income); }
-.stat-card.s-expense::after { background:var(--expense); }
-.stat-card.s-balance::after { background:var(--accent); }
-.stat-card.s-savings::after { background:var(--accent2); }
-.stat-label { font-size:9px; color:var(--muted); letter-spacing:.08em; text-transform:uppercase; margin-bottom:6px; }
-.stat-value { font-family:'Syne',sans-serif; font-size:20px; font-weight:700; letter-spacing:-0.5px; }
-.stat-value.pos { color:var(--income); }
-.stat-value.neg { color:var(--expense); }
-.stat-value.neu { color:var(--accent); }
-.stat-sub { font-size:10px; color:var(--muted); margin-top:3px; }
-.period-bar {
-  background:var(--surface); border:1px solid var(--border);
-  border-radius:8px; padding:10px 14px;
-  font-size:11px; color:var(--muted);
-  margin-bottom:16px; display:flex; justify-content:space-between; align-items:center;
-}
-.period-bar strong { color:var(--text); font-size:12px; }
-
-/* chart cards */
-.chart-card {
-  background:var(--surface); border:1px solid var(--border);
-  border-radius:12px; padding:16px; margin-bottom:12px;
-}
-.chart-title { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; margin-bottom:14px; color:var(--text); }
-
-/* ── TRANSACTIONS ── */
-.filter-scroll {
-  display:flex; gap:8px;
-  overflow-x:auto; padding-bottom:4px;
-  -webkit-overflow-scrolling:touch;
-  scrollbar-width:none;
-  margin-bottom:12px;
-}
-.filter-scroll::-webkit-scrollbar { display:none; }
-.chip {
-  flex-shrink:0;
-  padding:6px 14px;
-  border-radius:20px;
-  border:1px solid var(--border);
-  background:transparent;
-  color:var(--muted);
-  font-family:'DM Mono',monospace;
-  font-size:11px;
-  cursor:pointer;
-  transition:all .2s;
-  white-space:nowrap;
-}
-.chip.active { border-color:var(--accent); color:var(--accent); background:rgba(200,245,98,.07); }
-
-.tx-list { display:flex; flex-direction:column; gap:0; }
-.tx-item {
-  background:var(--surface);
-  border-bottom:1px solid var(--border);
-  padding:12px 16px;
-  display:flex; align-items:center; gap:12px;
-  transition: background .15s;
-}
-.tx-item:first-child { border-radius:12px 12px 0 0; }
-.tx-item:last-child { border-radius:0 0 12px 12px; border-bottom:none; }
-.tx-item:only-child { border-radius:12px; }
-.tx-cat-icon {
-  width:38px; height:38px;
-  border-radius:10px;
-  display:flex; align-items:center; justify-content:center;
-  font-size:18px; flex-shrink:0;
-}
-.tx-info { flex:1; min-width:0; }
-.tx-desc { font-size:13px; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.tx-date { font-size:10px; color:var(--muted); margin-top:2px; }
-.tx-amount { font-family:'Syne',sans-serif; font-weight:700; font-size:14px; flex-shrink:0; }
-.tx-amount.cr { color:var(--income); }
-.tx-amount.dr { color:var(--expense); }
-
-/* ── AI PAGE ── */
-.ai-header-card {
-  background: linear-gradient(135deg, rgba(200,245,98,.08), rgba(92,143,255,.08));
-  border:1px solid rgba(200,245,98,.2);
-  border-radius:12px; padding:16px; margin-bottom:16px;
-}
-.ai-badge {
-  display:inline-flex; align-items:center; gap:6px;
-  background:rgba(200,245,98,.1); border:1px solid rgba(200,245,98,.3);
-  border-radius:20px; padding:4px 12px; font-size:10px; color:var(--accent);
-  margin-bottom:10px; letter-spacing:.05em;
-}
-.ai-dot { width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite; }
-@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)} }
-
-.privacy-note {
-  background:rgba(92,143,255,.08); border:1px solid rgba(92,143,255,.2);
-  border-radius:10px; padding:12px; margin-bottom:12px;
-  font-size:12px; color:var(--muted); line-height:1.7;
-}
-
-.anon-preview {
-  background:var(--surface2); border:1px solid var(--border);
-  border-radius:10px; padding:14px; margin-bottom:12px;
-  font-size:11px; color:var(--muted); line-height:1.8;
-  font-family:'DM Mono',monospace;
-  max-height:200px; overflow-y:auto;
-  white-space:pre-wrap;
-}
-
-.copy-btn {
-  width:100%; padding:14px;
-  border-radius:10px; border:1px solid var(--accent);
-  background:rgba(200,245,98,.08); color:var(--accent);
-  font-family:'DM Mono',monospace; font-size:13px;
-  cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;
-  transition:all .2s; margin-bottom:10px;
-}
-.copy-btn:active { transform:scale(.97); background:rgba(200,245,98,.15); }
-
-.ai-result {
-  background:var(--surface); border:1px solid var(--border);
-  border-radius:12px; padding:14px; margin-top:12px;
-}
-.tip-item {
-  display:flex; gap:10px;
-  padding:12px; border-radius:8px;
-  background:var(--surface2); margin-bottom:8px;
-  border-left:3px solid var(--accent);
-}
-.tip-item.warn { border-left-color:var(--expense); }
-.tip-item.save { border-left-color:var(--income); }
-.tip-icon { font-size:20px; flex-shrink:0; }
-.tip-body strong { font-family:'Syne',sans-serif; font-size:13px; display:block; margin-bottom:3px; }
-.tip-body p { font-size:12px; color:var(--muted); line-height:1.6; }
-.tip-saving { color:var(--income); font-size:11px; margin-top:4px; font-weight:600; }
-
-.spinner { width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite; }
+/* SPINNER */
+.spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;display:inline-block;}
 @keyframes spin{to{transform:rotate(360deg)}}
-.loading-row { display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;padding:16px 0; }
 
-/* ── SECTION LABELS ── */
-.section-label {
-  font-size:10px; color:var(--muted); letter-spacing:.1em;
-  text-transform:uppercase; margin-bottom:8px; margin-top:4px;
-  padding: 0 2px;
-}
+/* DASHBOARD STATS */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:12px;position:relative;overflow:hidden;}
+.stat-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;}
+.stat-card.s-income::after{background:var(--income);}
+.stat-card.s-expense::after{background:var(--expense);}
+.stat-card.s-daily::after{background:var(--accent);}
+.stat-card.s-fixed::after{background:var(--accent2);}
+.stat-label{font-size:8px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px;}
+.stat-value{font-family:'Syne',sans-serif;font-size:19px;font-weight:700;letter-spacing:-.5px;}
+.stat-value.pos{color:var(--income);}
+.stat-value.neg{color:var(--expense);}
+.stat-value.acc{color:var(--accent);}
+.stat-value.acc2{color:var(--accent2);}
+.stat-sub{font-size:9px;color:var(--muted);margin-top:2px;}
 
-/* ── INSTALL BANNER ── */
-.install-banner {
-  position:fixed; bottom: calc(60px + env(safe-area-inset-bottom, 0px) + 8px);
-  left:12px; right:12px;
-  background: var(--surface);
-  border:1px solid var(--accent);
-  border-radius:14px;
-  padding:14px 16px;
-  display:flex; align-items:center; gap:12px;
-  z-index:200;
-  box-shadow: 0 4px 30px rgba(0,0,0,.5);
-  animation: slideUp .4s ease;
-}
+/* PERIOD BAR */
+.period-bar{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:10px;color:var(--muted);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
+.period-bar strong{color:var(--text);font-size:11px;}
+
+/* TRANSPARENCY BLOCK */
+.transp-card{background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:12px;margin-bottom:10px;}
+.transp-title{font-size:9px;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;}
+.transp-toggle{font-size:10px;color:var(--accent2);cursor:pointer;background:none;border:none;color:var(--accent2);font-family:'DM Mono',monospace;}
+.transp-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px;}
+.transp-row:last-child{border-bottom:none;}
+.transp-label{color:var(--muted);}
+.transp-val-rabo{color:#888;font-family:'Syne',sans-serif;font-size:12px;}
+.transp-val-ours{color:var(--accent);font-family:'Syne',sans-serif;font-size:12px;font-weight:700;}
+.transp-val-skip{color:var(--accent2);font-family:'Syne',sans-serif;font-size:12px;}
+.transp-note{font-size:9px;color:var(--muted);margin-top:7px;padding-top:7px;border-top:1px solid var(--border);line-height:1.6;}
+
+/* DAILY CARD */
+.daily-card{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:12px;margin-bottom:10px;}
+.daily-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;}
+.daily-row:last-child{border-bottom:none;}
+.daily-label{color:var(--muted);font-size:11px;}
+.daily-val{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;}
+
+/* PERIOD SELECTOR */
+.period-selector{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:12px;margin-bottom:10px;}
+.sel-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.sel-label{font-size:10px;color:var(--muted);min-width:85px;}
+.sel-select{flex:1;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:7px;padding:7px 8px;font-size:11px;font-family:'DM Mono',monospace;}
+.sel-input{flex:1;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:7px;padding:7px 8px;font-size:11px;font-family:'DM Mono',monospace;}
+.salary-pill{display:inline-flex;align-items:center;gap:5px;background:rgba(98,232,160,.1);border:1px solid rgba(98,232,160,.3);border-radius:20px;padding:4px 10px;font-size:10px;color:var(--income);margin:2px;}
+
+/* CHART */
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:14px;margin-bottom:10px;}
+.chart-title-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.chart-title{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--text);}
+.chart-sub{font-size:9px;color:var(--muted);}
+
+/* TRANSACTIONS */
+.filter-scroll{display:flex;gap:6px;overflow-x:auto;padding-bottom:5px;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin-bottom:10px;}
+.filter-scroll::-webkit-scrollbar{display:none;}
+.chip{flex-shrink:0;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;transition:.2s;white-space:nowrap;}
+.chip.active{border-color:var(--accent);color:var(--accent);background:rgba(200,245,98,.07);}
+.tx-item{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 12px;display:flex;align-items:center;gap:10px;position:relative;}
+.tx-item:first-child{border-radius:11px 11px 0 0;}
+.tx-item:last-child{border-radius:0 0 11px 11px;border-bottom:none;}
+.tx-item:only-child{border-radius:11px;}
+.tx-item.excluded{opacity:.4;}
+.tx-cat-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.tx-info{flex:1;min-width:0;}
+.tx-desc{font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tx-meta{font-size:9px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:5px;}
+.tx-amount{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;flex-shrink:0;text-align:right;}
+.tx-amount.cr{color:var(--income);}
+.tx-amount.dr{color:var(--expense);}
+.tx-controls{display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
+.cat-badge{font-size:8px;padding:2px 7px;border-radius:10px;cursor:pointer;white-space:nowrap;border:1px solid;}
+.fixed-tag{font-size:8px;padding:1px 6px;border-radius:10px;background:rgba(92,143,255,.12);color:var(--accent2);border:1px solid rgba(92,143,255,.3);}
+.excl-tag{font-size:8px;padding:1px 6px;border-radius:10px;background:rgba(255,107,107,.12);color:var(--expense);border:1px solid rgba(255,107,107,.3);}
+
+/* TX EDITOR MODAL */
+.tx-editor{background:var(--surface2);border:1px solid var(--accent);border-radius:12px;padding:14px;margin-bottom:10px;display:none;}
+.tx-editor.open{display:block;}
+.editor-title{font-size:11px;color:var(--accent);font-weight:700;margin-bottom:10px;}
+.editor-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.editor-label{font-size:10px;color:var(--muted);min-width:75px;}
+.editor-select{flex:1;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:7px;padding:6px 8px;font-size:11px;font-family:'DM Mono',monospace;}
+.editor-btns{display:flex;gap:6px;margin-top:6px;}
+.btn-sm{padding:7px 12px;border-radius:7px;font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;border:none;flex:1;text-align:center;}
+.btn-sm.primary{background:var(--accent);color:#0d0f14;font-weight:600;}
+.btn-sm.ghost{background:var(--surface);color:var(--muted);border:1px solid var(--border);}
+.btn-sm.danger{background:rgba(255,107,107,.1);color:var(--expense);border:1px solid rgba(255,107,107,.3);}
+
+/* AI PAGE */
+.ai-header{background:linear-gradient(135deg,rgba(200,245,98,.07),rgba(92,143,255,.07));border:1px solid rgba(200,245,98,.2);border-radius:11px;padding:14px;margin-bottom:10px;}
+.ai-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(200,245,98,.1);border:1px solid rgba(200,245,98,.3);border-radius:20px;padding:3px 10px;font-size:9px;color:var(--accent);margin-bottom:8px;letter-spacing:.05em;}
+.ai-dot{width:5px;height:5px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.privacy-note{background:rgba(92,143,255,.07);border:1px solid rgba(92,143,255,.2);border-radius:9px;padding:10px;margin-bottom:10px;font-size:11px;color:var(--muted);line-height:1.7;}
+.anon-preview{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:12px;margin-bottom:10px;font-size:10px;color:var(--muted);line-height:1.8;font-family:'DM Mono',monospace;max-height:220px;overflow-y:auto;white-space:pre-wrap;}
+.copy-btn{width:100%;padding:12px;border-radius:9px;border:1px solid var(--accent);background:rgba(200,245,98,.07);color:var(--accent);font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:8px;}
+.btn-primary{width:100%;padding:13px;border-radius:11px;border:none;background:var(--accent);color:#0d0f14;font-family:'DM Mono',monospace;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;}
+.btn-primary:active{transform:scale(.97);}
+.btn-primary:disabled{opacity:.5;}
+.tip-item{display:flex;gap:9px;padding:10px;border-radius:8px;background:var(--surface2);margin-bottom:7px;border-left:3px solid var(--accent);}
+.tip-item.warn{border-left-color:var(--expense);}
+.tip-item.save{border-left-color:var(--income);}
+.tip-icon{font-size:18px;flex-shrink:0;}
+.tip-body strong{font-family:'Syne',sans-serif;font-size:12px;display:block;margin-bottom:2px;}
+.tip-body p{font-size:11px;color:var(--muted);line-height:1.6;}
+.tip-saving{color:var(--income);font-size:10px;margin-top:3px;font-weight:600;}
+
+/* AI PROFILE */
+.profile-card{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:12px;margin-bottom:10px;}
+.profile-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.profile-label{font-size:10px;color:var(--muted);min-width:100px;}
+
+/* BELASTING */
+.bel-input{flex:1;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:7px;padding:7px 8px;font-size:11px;font-family:'DM Mono',monospace;}
+
+/* CAT COLORS */
+.bg-boodschappen{background:#ffd16618;}.bg-horeca{background:#ef8c8c18;}.bg-transport{background:#5c8fff18;}.bg-abonnementen{background:#c77dff18;}.bg-wonen{background:#4cc9f018;}.bg-gezondheid{background:#62e8a018;}.bg-inkomen{background:#c8f56218;}.bg-overig{background:#8b8fa818;}.bg-kleding{background:#ff9a3c18;}.bg-sparen{background:#38d9d918;}.bg-vastlast{background:#5c8fff18;}.bg-kinderopvang{background:#ffd16618;}
+
+/* INSTALL BANNER */
+.install-banner{position:fixed;bottom:calc(58px + env(safe-area-inset-bottom,0px) + 8px);left:10px;right:10px;background:var(--surface);border:1px solid var(--accent);border-radius:13px;padding:12px 14px;display:flex;align-items:center;gap:10px;z-index:200;animation:slideUp .4s ease;}
 @keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
-.install-banner.hidden { display:none; }
-.install-text { flex:1; }
-.install-text strong { font-family:'Syne',sans-serif; font-size:13px; display:block; margin-bottom:2px; }
-.install-text span { font-size:11px; color:var(--muted); }
-.install-btn { background:var(--accent);color:#0d0f14;border:none;border-radius:8px;padding:8px 14px;font-family:'DM Mono',monospace;font-size:12px;font-weight:600;cursor:pointer; }
-.install-dismiss { background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:4px; }
-
-/* ── CAT COLORS ── */
-.bg-boodschappen { background:#ffd16615; }
-.bg-horeca { background:#ef8c8c15; }
-.bg-transport { background:#5c8fff15; }
-.bg-abonnementen { background:#c77dff15; }
-.bg-wonen { background:#4cc9f015; }
-.bg-gezondheid { background:#62e8a015; }
-.bg-inkomen { background:#c8f56215; }
-.bg-overig { background:#8b8fa815; }
-.bg-kleding { background:#ff9a3c15; }
-.bg-sparen { background:#38d9d915; }
+.install-banner.hidden{display:none;}
+.install-btn{background:var(--accent);color:#0d0f14;border:none;border-radius:7px;padding:7px 12px;font-family:'DM Mono',monospace;font-size:11px;font-weight:600;cursor:pointer;}
+.install-dismiss{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px;}
 </style>
 </head>
 <body>
 
-<!-- TOP BAR -->
 <div class="topbar">
-  <div class="logo"><span class="logo-dot"></span>Budget Inzicht</div>
-  <div class="topbar-actions">
-    <div class="icon-btn" id="resetBtn" onclick="resetApp()" title="Nieuw bestand" style="display:none">↩</div>
-    <div class="icon-btn" onclick="toggleDark()">🌗</div>
+  <div class="logo">
+    <span class="logo-dot"></span>Budget Inzicht
+    <span class="rabo-tag">Rabobank</span>
+  </div>
+  <div class="topbar-right">
+    <div class="ib" id="resetBtn" onclick="resetApp()" style="display:none">↩</div>
+    <div class="ib" onclick="toggleDark()">🌗</div>
   </div>
 </div>
 
-<!-- INSTALL BANNER -->
 <div class="install-banner hidden" id="installBanner">
-  <div class="install-text">
-    <strong>📲 Installeer als app</strong>
-    <span>Zet op je startscherm voor snelle toegang</span>
+  <div style="flex:1;">
+    <div style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;display:block;margin-bottom:2px;">📲 Installeer als app</div>
+    <span style="font-size:10px;color:var(--muted);">Zet op je startscherm</span>
   </div>
   <button class="install-btn" id="installBtn">Installeer</button>
   <button class="install-dismiss" onclick="document.getElementById('installBanner').classList.add('hidden')">×</button>
 </div>
 
-<!-- SCROLL AREA -->
 <div class="scroll-area" id="scrollArea">
 
-  <!-- PAGE: UPLOAD -->
-  <div class="page active" id="pageUpload">
-    <div class="upload-hero">
-      <span class="upload-hero-icon">💳</span>
-      <h1>Budget Inzicht</h1>
-      <p>Upload je Rabobank afschrift en krijg direct inzicht.<br>Alles wordt <strong style="color:var(--accent)">lokaal</strong> verwerkt op jouw telefoon.</p>
-    </div>
-
-    <!-- FORMAT TABS -->
-    <div style="display:flex;gap:8px;margin-bottom:14px;">
-      <button class="fmt-tab active" id="tab-pdf" onclick="switchTab('pdf')">📄 PDF</button>
-      <button class="fmt-tab" id="tab-mt940" onclick="switchTab('mt940')">📋 MT940</button>
-      <button class="fmt-tab" id="tab-csv" onclick="switchTab('csv')">📊 CSV</button>
-    </div>
-
-    <!-- PDF UPLOAD -->
-    <div id="zone-pdf">
-      <div class="upload-card" onclick="document.getElementById('filePdf').click()">
-        <input type="file" id="filePdf" accept=".pdf" style="display:none">
-        <div class="upload-card-icon">📄</div>
-        <div class="upload-card-title">Tik om PDF te kiezen</div>
-        <div class="upload-card-sub">Rabobank rekeningafschrift (.pdf)<br><small style="color:var(--accent)">100% lokaal — niets verlaat je telefoon</small></div>
-      </div>
-      <div id="pdfStatus" style="display:none;text-align:center;padding:16px;color:var(--muted);font-size:12px;">
-        <div class="spinner" style="margin:0 auto 8px;display:block;width:20px;height:20px;"></div>
-        PDF wordt gelezen...
-      </div>
-      <div class="howto-card" style="margin-top:14px;">
-        <div class="howto-title">↓ HOE DOWNLOAD JE EEN PDF UIT RABOBANK?</div>
-        <div class="howto-step"><div class="step-n">01</div><div class="step-t"><strong>Open de Rabo app</strong>Ga naar Instellingen → Documenten → Rekeningafschriften</div></div>
-        <div class="howto-step"><div class="step-n">02</div><div class="step-t"><strong>Kies maand & rekening</strong>Tik op het afschrift → het opent als PDF</div></div>
-        <div class="howto-step"><div class="step-n">03</div><div class="step-t"><strong>Sla op & upload hier</strong>Deel/sla de PDF op → tik hierboven op "Tik om PDF te kiezen"</div></div>
-      </div>
-    </div>
-
-    <!-- MT940 UPLOAD -->
-    <div id="zone-mt940" style="display:none;">
-      <div class="upload-card" onclick="document.getElementById('fileMt940').click()">
-        <input type="file" id="fileMt940" accept=".swi,.sta,.mt940,.txt" style="display:none">
-        <div class="upload-card-icon">📋</div>
-        <div class="upload-card-title">Tik om MT940 te kiezen</div>
-        <div class="upload-card-sub">MT940 exportbestand (.swi of .sta)<br><small style="color:var(--accent)">100% lokaal — niets verlaat je telefoon</small></div>
-      </div>
-      <div class="howto-card" style="margin-top:14px;">
-        <div class="howto-title">↓ HOE DOWNLOAD JE MT940 UIT RABOBANK? (via desktop)</div>
-        <div class="howto-step"><div class="step-n">01</div><div class="step-t"><strong>Login op rabo.nl (desktop)</strong>Ga naar Betalen en ontvangen → Transacties downloaden</div></div>
-        <div class="howto-step"><div class="step-n">02</div><div class="step-t"><strong>Kies MT940 formaat</strong>Selecteer "MT940 Structured (.swi)" als bestandsformaat</div></div>
-        <div class="howto-step"><div class="step-n">03</div><div class="step-t"><strong>Download & upload hier</strong>Stuur het bestand naar je telefoon en upload het hierboven</div></div>
-      </div>
-    </div>
-
-    <!-- CSV UPLOAD -->
-    <div id="zone-csv" style="display:none;">
-      <div class="upload-card" onclick="document.getElementById('fileCsv').click()">
-        <input type="file" id="fileCsv" accept=".csv,.txt" style="display:none">
-        <div class="upload-card-icon">📊</div>
-        <div class="upload-card-title">Tik om CSV te kiezen</div>
-        <div class="upload-card-sub">Rabobank CSV exportbestand<br><small style="color:var(--accent)">100% lokaal — niets verlaat je telefoon</small></div>
-      </div>
-    </div>
-
-    <button class="btn-full btn-ghost" onclick="loadDemo()" style="margin-top:12px;">🎭 Demo data proberen</button>
-  </div>
-
-  <!-- PAGE: DASHBOARD -->
-  <div class="page" id="pageDash">
-    <div class="period-bar">
-      <span id="periodLabel">Laden...</span>
-      <strong id="txCountLabel">0 transacties</strong>
-    </div>
-
-    <div class="stats-grid">
-      <div class="stat-card s-income">
-        <div class="stat-label">Inkomsten</div>
-        <div class="stat-value pos" id="statIncome">€0</div>
-        <div class="stat-sub" id="statIncomeCount"></div>
-      </div>
-      <div class="stat-card s-expense">
-        <div class="stat-label">Uitgaven</div>
-        <div class="stat-value neg" id="statExpense">€0</div>
-        <div class="stat-sub" id="statExpenseCount"></div>
-      </div>
-      <div class="stat-card s-balance">
-        <div class="stat-label">Netto saldo</div>
-        <div class="stat-value neu" id="statBalance">€0</div>
-        <div class="stat-sub">over deze periode</div>
-      </div>
-      <div class="stat-card s-savings">
-        <div class="stat-label">Spaarquote</div>
-        <div class="stat-value neu" id="statSavings">0%</div>
-        <div class="stat-sub">van inkomsten</div>
-      </div>
-    </div>
-
-    <div class="chart-card">
-      <div class="chart-title">Uitgaven per categorie</div>
-      <canvas id="catChart" height="200"></canvas>
-    </div>
-    <div class="chart-card">
-      <div class="chart-title">Per maand</div>
-      <canvas id="monthChart" height="180"></canvas>
+<!-- UPLOAD PAGE -->
+<div class="page active" id="pageUpload">
+  <div class="rabo-badge">
+    <div class="rabo-badge-icon">🏦</div>
+    <div>
+      <div class="rabo-badge-text">Alleen voor Rabobank</div>
+      <div class="rabo-badge-sub">PDF rekeningafschrift vereist</div>
     </div>
   </div>
-
-  <!-- PAGE: TRANSACTIONS -->
-  <div class="page" id="pageTx">
-    <div class="section-label">Filter op categorie</div>
-    <div class="filter-scroll" id="filterScroll"></div>
-    <div id="txList" class="tx-list"></div>
+  <div class="upload-hero">
+    <h1>Budget Inzicht</h1>
+    <p>Analyseer je bankafschrift. Alles blijft <strong style="color:var(--accent)">lokaal</strong> op je telefoon — niets gaat naar een server.</p>
   </div>
-
-  <!-- PAGE: BELASTING -->
-  <div class="page" id="pageBelasting">
-    <div class="ai-header-card" style="background:linear-gradient(135deg,rgba(92,143,255,.08),rgba(200,245,98,.08));border-color:rgba(92,143,255,.2);">
-      <div class="ai-badge" style="background:rgba(92,143,255,.1);border-color:rgba(92,143,255,.3);color:var(--accent2);">🧮 BELASTINGOPTIMALISATIE</div>
-      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:17px;margin-bottom:6px;">Optimale inkomensverdeling</div>
-      <div style="font-size:12px;color:var(--muted);line-height:1.6;">Bereken het beste netto gezinsinkomen op basis van de Nederlandse belastingregels 2025/2026.</div>
+  <div class="fmt-tabs">
+    <button class="fmt-tab active" id="tab-pdf" onclick="switchTab('pdf')">📄 PDF</button>
+    <button class="fmt-tab" id="tab-mt940" onclick="switchTab('mt940')">📋 MT940</button>
+    <button class="fmt-tab" id="tab-csv" onclick="switchTab('csv')">📊 CSV</button>
+  </div>
+  <div id="zone-pdf">
+    <div class="upload-card" onclick="document.getElementById('filePdf').click()">
+      <input type="file" id="filePdf" accept=".pdf" style="display:none">
+      <div class="upload-card-icon">📄</div>
+      <div class="upload-card-title">Tik om PDF te kiezen</div>
+      <div class="upload-card-sub">Rabobank rekeningafschrift (.pdf)</div>
     </div>
-
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px;">
-      <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:12px;color:var(--text);">Situatie instellen</div>
-      <div style="margin-bottom:10px;">
-        <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Partner 1 — bruto inkomen</div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <input type="range" id="bInc1" min="0" max="200000" step="1000" value="80000" style="flex:1;">
-          <span style="font-size:13px;font-weight:700;color:var(--income);min-width:72px;text-align:right;" id="bInc1Out">€80.000</span>
-        </div>
-      </div>
-      <div style="margin-bottom:10px;">
-        <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Partner 2 — bruto inkomen</div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <input type="range" id="bInc2" min="0" max="200000" step="1000" value="20000" style="flex:1;">
-          <span style="font-size:13px;font-weight:700;color:var(--income);min-width:72px;text-align:right;" id="bInc2Out">€20.000</span>
-        </div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-        <div>
-          <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Kinderen</div>
-          <select id="bKinderen" style="width:100%;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:12px;font-family:'DM Mono',monospace;">
-            <option value="0">Geen</option><option value="1">1 kind</option><option value="2">2 kinderen</option><option value="3">3+</option>
-          </select>
-        </div>
-        <div>
-          <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Belastingjaar</div>
-          <select id="bJaar" style="width:100%;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:12px;font-family:'DM Mono',monospace;">
-            <option value="2025">2025</option><option value="2026">2026</option>
-          </select>
-        </div>
-        <div>
-          <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Eigen woning</div>
-          <select id="bWoning" style="width:100%;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:12px;font-family:'DM Mono',monospace;">
-            <option value="0">Huurder</option><option value="1">Eigen woning</option>
-          </select>
-        </div>
-        <div>
-          <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Hypotheekrente p/j</div>
-          <input type="number" id="bRente" value="0" min="0" max="30000" step="500" style="width:100%;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:12px;font-family:'DM Mono',monospace;">
-        </div>
-      </div>
-    </div>
-
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px;">
-      <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:10px;color:var(--text);">Huidige situatie</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="bMetrics"></div>
-    </div>
-
-    <div id="bAdvice"></div>
-
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px;">
-      <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:4px;color:var(--text);">Optimale verdeling</div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:12px;">Netto gezinsinkomen bij verschillende inkomensverdelingen</div>
-      <div style="position:relative;width:100%;height:200px;"><canvas id="bChart" role="img" aria-label="Staafdiagram optimale inkomensverdeling"></canvas></div>
-    </div>
-
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px;">
-      <div style="overflow-x:auto;">
-        <table style="width:100%;border-collapse:collapse;font-size:11px;">
-          <thead><tr style="background:var(--surface2);">
-            <th style="padding:8px 10px;text-align:left;color:var(--muted);font-weight:500;border-bottom:1px solid var(--border);">P1</th>
-            <th style="padding:8px 10px;text-align:left;color:var(--muted);font-weight:500;border-bottom:1px solid var(--border);">P2</th>
-            <th style="padding:8px 10px;text-align:right;color:var(--muted);font-weight:500;border-bottom:1px solid var(--border);">Netto gezin</th>
-            <th style="padding:8px 10px;text-align:right;color:var(--muted);font-weight:500;border-bottom:1px solid var(--border);">Verschil</th>
-          </tr></thead>
-          <tbody id="bTableBody"></tbody>
-        </table>
-      </div>
+    <div class="howto-card">
+      <div class="howto-title">HOE DOWNLOAD JE EEN PDF?</div>
+      <div class="howto-step"><div class="step-n">01</div><div class="step-t"><strong>Open de Rabo app</strong>Instellingen → Documenten → Afschriften</div></div>
+      <div class="howto-step"><div class="step-n">02</div><div class="step-t"><strong>Kies maand & rekening</strong>Tik op afschrift → opent als PDF</div></div>
+      <div class="howto-step"><div class="step-n">03</div><div class="step-t"><strong>Deel/sla op & upload</strong>Tik hierboven op "Tik om PDF te kiezen"</div></div>
     </div>
   </div>
-
-  <!-- PAGE: AI -->
-  <div class="page" id="pageAI">
-    <div class="ai-header-card">
-      <div class="ai-badge"><div class="ai-dot"></div>AI ANALYSE</div>
-      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:17px;margin-bottom:6px;">Persoonlijke bespaartips</div>
-      <div style="font-size:12px;color:var(--muted);line-height:1.6;">Claude analyseert jouw uitgavenpatroon en geeft concrete, persoonlijke adviezen.</div>
+  <div id="zone-mt940" style="display:none;">
+    <div class="upload-card" onclick="document.getElementById('fileMt940').click()">
+      <input type="file" id="fileMt940" accept=".swi,.sta,.mt940,.txt" style="display:none">
+      <div class="upload-card-icon">📋</div>
+      <div class="upload-card-title">Tik om MT940 te kiezen</div>
+      <div class="upload-card-sub">MT940 exportbestand (.swi of .sta) via rabo.nl desktop</div>
     </div>
-
-    <div class="privacy-note">
-      🔒 <strong style="color:var(--text)">Hoe werkt de privacy?</strong><br>
-      Je gegevens worden <strong>geanonimiseerd</strong> voordat ze worden verstuurd — geen namen, geen rekeningnummers. Je kunt de prompt eerst bekijken en kopiëren om zelf te plakken in Claude.ai als je liever niets automatisch verstuurt.
-    </div>
-
-    <div class="section-label">Geanonimiseerde prompt (wat er verstuurd wordt)</div>
-    <div class="anon-preview" id="anonPreview">Upload eerst je bankafschrift...</div>
-
-    <button class="copy-btn" onclick="copyPrompt()">📋 Kopieer prompt (plak zelf in Claude.ai)</button>
-    <button class="btn-full btn-primary" id="aiAnalyzeBtn" onclick="runAIAnalysis()">✨ Automatisch analyseren via AI</button>
-
-    <div id="aiResultArea"></div>
   </div>
-
+  <div id="zone-csv" style="display:none;">
+    <div class="upload-card" onclick="document.getElementById('fileCsv').click()">
+      <input type="file" id="fileCsv" accept=".csv,.txt" style="display:none">
+      <div class="upload-card-icon">📊</div>
+      <div class="upload-card-title">Tik om CSV te kiezen</div>
+      <div class="upload-card-sub">Rabobank CSV exportbestand</div>
+    </div>
+  </div>
+  <button class="btn-ghost" onclick="loadDemo()">🎭 Demo data proberen</button>
 </div>
 
-<!-- BOTTOM NAV -->
-<div class="bottom-nav" id="bottomNav" style="display:none">
-  <div class="nav-item active" id="nav-dash" onclick="showPage('pageDash','nav-dash')">
-    <span class="nav-icon">📊</span>
-    <span>Overzicht</span>
+<!-- DASHBOARD PAGE -->
+<div class="page" id="pageDash">
+  <div class="period-bar">
+    <span id="periodLabel">Laden...</span>
+    <strong id="txCountLabel">0 transacties</strong>
   </div>
-  <div class="nav-item" id="nav-tx" onclick="showPage('pageTx','nav-tx')">
-    <span class="nav-icon">📋</span>
-    <span>Transacties</span>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card s-income">
+      <div class="stat-label">Extern inkomen</div>
+      <div class="stat-value pos" id="statIncome">€0</div>
+      <div class="stat-sub" id="statIncomeSub">cb + sb</div>
+    </div>
+    <div class="stat-card s-expense">
+      <div class="stat-label">Externe uitgaven</div>
+      <div class="stat-value neg" id="statExpense">€0</div>
+      <div class="stat-sub" id="statExpenseSub">naar derden</div>
+    </div>
+    <div class="stat-card s-daily">
+      <div class="stat-label">Variabel per dag</div>
+      <div class="stat-value acc" id="statDaily">€0</div>
+      <div class="stat-sub">excl. vaste lasten</div>
+    </div>
+    <div class="stat-card s-fixed">
+      <div class="stat-label">Vaste lasten</div>
+      <div class="stat-value acc2" id="statFixed">€0</div>
+      <div class="stat-sub" id="statFixedSub">per maand</div>
+    </div>
   </div>
-  <div class="nav-item" id="nav-belasting" onclick="showPage('pageBelasting','nav-belasting')">
-    <span class="nav-icon">🧮</span>
-    <span>Belasting</span>
+
+  <!-- Transparency block -->
+  <div class="transp-card">
+    <div class="transp-title">
+      Verschil met Rabobank-totalen
+      <button class="transp-toggle" onclick="toggleTransp()">uitleg ▾</button>
+    </div>
+    <div class="transp-row">
+      <div class="transp-label">Rabobank afgeschreven</div>
+      <div class="transp-val-rabo" id="transpRaboAf">—</div>
+    </div>
+    <div class="transp-row">
+      <div class="transp-label">Wij tellen (extern)</div>
+      <div class="transp-val-ours" id="transpOnzeAf">—</div>
+    </div>
+    <div class="transp-row">
+      <div class="transp-label">Rabobank bijgeschreven</div>
+      <div class="transp-val-rabo" id="transpRaboBij">—</div>
+    </div>
+    <div class="transp-row">
+      <div class="transp-label">Wij tellen (extern)</div>
+      <div class="transp-val-ours" id="transpOnzeBij">—</div>
+    </div>
+    <div class="transp-note hidden" id="transpNote">
+      Rabobank telt alle boekingen mee, inclusief interne overboekingen tussen eigen rekeningen (spaarpotjes, budgetzakjes). Wij tellen alleen wat er echt van/naar derden ging. Onze cijfers geven een eerlijker beeld van je werkelijke financiële situatie.
+    </div>
   </div>
-  <div class="nav-item" id="nav-ai" onclick="showPage('pageAI','nav-ai')">
-    <span class="nav-icon">💡</span>
-    <span>AI Tips</span>
+
+  <!-- Charts -->
+  <div class="chart-card">
+    <div class="chart-title-row">
+      <div class="chart-title">Uitgaven per categorie</div>
+      <div class="chart-sub">excl. vaste lasten</div>
+    </div>
+    <canvas id="catChart" height="190"></canvas>
   </div>
+  <div class="chart-card">
+    <div class="chart-title">Variabel vs vast per maand</div>
+    <canvas id="monthChart" height="160"></canvas>
+  </div>
+</div>
+
+<!-- TRANSACTIONS PAGE -->
+<div class="page" id="pageTx">
+  <div style="font-size:10px;color:var(--muted);margin-bottom:6px;display:flex;justify-content:space-between;">
+    <span>Tik op een transactie om te bewerken</span>
+    <span id="txCountDisp"></span>
+  </div>
+  <div class="filter-scroll" id="filterScroll"></div>
+  <div id="txList"></div>
+</div>
+
+<!-- BELASTING PAGE -->
+<div class="page" id="pageBelasting">
+  <div class="ai-header" style="background:linear-gradient(135deg,rgba(92,143,255,.07),rgba(200,245,98,.07));border-color:rgba(92,143,255,.2);">
+    <div class="ai-badge" style="background:rgba(92,143,255,.1);border-color:rgba(92,143,255,.3);color:var(--accent2);">🧮 BELASTINGOPTIMALISATIE</div>
+    <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:16px;margin-bottom:5px;">Optimale inkomensverdeling</div>
+    <div style="font-size:11px;color:var(--muted);line-height:1.6;">Nederlandse belastingregels 2025/2026 — arbeidskorting, AHK, IACK.</div>
+  </div>
+  <div class="period-selector">
+    <div class="card-title" style="margin-bottom:10px;">Situatie</div>
+    <div class="sel-row"><label class="sel-label">Partner 1 inkomen</label><input type="range" id="bInc1" min="0" max="200000" step="1000" value="80000" style="flex:1;"><span style="font-size:12px;font-weight:700;color:var(--income);min-width:68px;text-align:right;" id="bInc1Out">€80.000</span></div>
+    <div class="sel-row"><label class="sel-label">Partner 2 inkomen</label><input type="range" id="bInc2" min="0" max="200000" step="1000" value="20000" style="flex:1;"><span style="font-size:12px;font-weight:700;color:var(--income);min-width:68px;text-align:right;" id="bInc2Out">€20.000</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <div><div style="font-size:10px;color:var(--muted);margin-bottom:4px;">Kinderen</div><select id="bKinderen" class="bel-input"><option value="0">Geen</option><option value="1">1 kind</option><option value="2">2 kinderen</option><option value="3">3+</option></select></div>
+      <div><div style="font-size:10px;color:var(--muted);margin-bottom:4px;">Jaar</div><select id="bJaar" class="bel-input"><option value="2025">2025</option><option value="2026">2026</option></select></div>
+      <div><div style="font-size:10px;color:var(--muted);margin-bottom:4px;">Eigen woning</div><select id="bWoning" class="bel-input"><option value="0">Huurder</option><option value="1">Eigen woning</option></select></div>
+      <div><div style="font-size:10px;color:var(--muted);margin-bottom:4px;">Hypotheekrente p/j</div><input type="number" id="bRente" value="0" min="0" max="30000" step="500" class="bel-input"></div>
+    </div>
+  </div>
+  <div class="stats-grid" id="bMetrics"></div>
+  <div id="bAdvice"></div>
+  <div class="chart-card">
+    <div class="card-title">Netto gezinsinkomen per verdeling</div>
+    <div style="position:relative;width:100%;height:200px;"><canvas id="bChart" role="img" aria-label="Belasting optimalisatie grafiek"></canvas></div>
+  </div>
+  <div class="card" style="overflow-x:auto;">
+    <table style="width:100%;border-collapse:collapse;font-size:11px;">
+      <thead><tr style="background:var(--surface2);">
+        <th style="padding:7px 8px;text-align:left;color:var(--muted);font-weight:500;border-bottom:1px solid var(--border);">P1</th>
+        <th style="padding:7px 8px;text-align:left;color:var(--muted);font-weight:500;border-bottom:1px solid var(--border);">P2</th>
+        <th style="padding:7px 8px;text-align:right;color:var(--muted);font-weight:500;border-bottom:1px solid var(--border);">Netto gezin</th>
+        <th style="padding:7px 8px;text-align:right;color:var(--muted);font-weight:500;border-bottom:1px solid var(--border);">Verschil</th>
+      </tr></thead>
+      <tbody id="bTableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- AI TIPS PAGE -->
+<div class="page" id="pageAI">
+  <div class="ai-header">
+    <div class="ai-badge"><div class="ai-dot"></div>AI ANALYSE</div>
+    <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:16px;margin-bottom:5px;">Financieel advies op maat</div>
+    <div style="font-size:11px;color:var(--muted);line-height:1.6;">Claude als Nederlandse financieel adviseur — inclusief belasting, toeslagen en spaartips.</div>
+  </div>
+
+  <div class="profile-card">
+    <div class="card-title">Jouw situatie (optioneel)</div>
+    <div class="profile-row">
+      <label class="profile-label" style="font-size:10px;color:var(--muted);">Gezinssamenstelling</label>
+      <select id="profGezin" class="sel-select"><option value="alleenstaand">Alleenstaand</option><option value="partner">Met partner, geen kinderen</option><option value="partner_kinderen" selected>Met partner en kinderen</option><option value="alleenstaand_kinderen">Alleenstaand met kinderen</option></select>
+    </div>
+    <div class="profile-row">
+      <label class="profile-label" style="font-size:10px;color:var(--muted);">Eigen woning</label>
+      <select id="profWoning" class="sel-select"><option value="huur">Huurder</option><option value="koop" selected>Koopwoning (hypotheek)</option></select>
+    </div>
+    <div class="profile-row">
+      <label class="profile-label" style="font-size:10px;color:var(--muted);">Pijldatum analyse</label>
+      <select id="profPijl" class="sel-select"><option value="kalender">Kalendermaand</option><option value="salaris">Salariscyclus</option></select>
+    </div>
+  </div>
+
+  <div class="privacy-note">
+    🔒 <strong style="color:var(--text)">Privacy:</strong> Bedrijfsnamen worden vervangen door "Werkgever A/B" etc. Geen rekeningnummers. Alleen categorieën, bedragen en patronen worden verstuurd.
+  </div>
+  <div style="font-size:9px;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-bottom:6px;">Wat Claude ziet (geanonimiseerd)</div>
+  <div class="anon-preview" id="anonPreview">Upload eerst je bankafschrift...</div>
+  <button class="copy-btn" onclick="copyPrompt()">📋 Kopieer → plak in Claude.ai</button>
+  <button class="btn-primary" id="aiBtn" onclick="runAI()">✨ Analyseer via AI</button>
+  <div id="aiResult" style="margin-top:10px;"></div>
+</div>
+
+</div><!-- /scroll-area -->
+
+<div class="bottom-nav hidden" id="bottomNav">
+  <div class="nav-item active" id="nav-dash" onclick="showPage('pageDash','nav-dash')"><span class="nav-icon">📊</span><span>Overzicht</span></div>
+  <div class="nav-item" id="nav-tx" onclick="showPage('pageTx','nav-tx')"><span class="nav-icon">📋</span><span>Transacties</span></div>
+  <div class="nav-item" id="nav-belasting" onclick="showPage('pageBelasting','nav-belasting')"><span class="nav-icon">🧮</span><span>Belasting</span></div>
+  <div class="nav-item" id="nav-ai" onclick="showPage('pageAI','nav-ai')"><span class="nav-icon">💡</span><span>AI Tips</span></div>
 </div>
 
 <script>
-// ── PWA SERVICE WORKER ────────────────────────────────────────────────────────
-if ('serviceWorker' in navigator) {
-  const sw = `
-    self.addEventListener('install', e => self.skipWaiting());
-    self.addEventListener('activate', e => clients.claim());
-    self.addEventListener('fetch', e => {
-      if (e.request.url.includes('fonts.googleapis') || e.request.url.includes('cdnjs')) {
-        e.respondWith(caches.open('v1').then(c => c.match(e.request).then(r => r || fetch(e.request).then(res => { c.put(e.request, res.clone()); return res; }))));
-      }
-    });
-  `;
-  const blob = new Blob([sw], {type:'application/javascript'});
-  navigator.serviceWorker.register(URL.createObjectURL(blob));
-}
-
-// ── INSTALL PROMPT ────────────────────────────────────────────────────────────
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', e => {
-  e.preventDefault();
-  deferredPrompt = e;
-  document.getElementById('installBanner').classList.remove('hidden');
-});
-document.getElementById('installBtn').addEventListener('click', () => {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    deferredPrompt.userChoice.then(() => {
-      deferredPrompt = null;
-      document.getElementById('installBanner').classList.add('hidden');
-    });
-  }
-});
-
-// ── DATA ──────────────────────────────────────────────────────────────────────
-let allTx = [], filteredCat = 'Alle';
-let charts = {};
-
-// ── CATEGORIES ────────────────────────────────────────────────────────────────
-const CATS = [
-  { name:'Inkomen',       cls:'inkomen',       emoji:'💶', kw:['salaris','loon','inkomen','pensioen','uitkering','freelance','betaling ontvangen'] },
-  { name:'Sparen',        cls:'sparen',        emoji:'🏦', kw:['spaarrekening','spaarpot','sparen'] },
-  { name:'Boodschappen',  cls:'boodschappen',  emoji:'🛒', kw:['albert heijn','jumbo','lidl','aldi','plus supermarkt','dirk','vomar','ah ','deen','supermarkt'] },
-  { name:'Horeca',        cls:'horeca',        emoji:'🍔', kw:['restaurant','cafe ','café','mcdonalds','burger king','pizza','starbucks','thuisbezorgd','deliveroo','uber eats','takeaway','snackbar','bakker'] },
-  { name:'Transport',     cls:'transport',     emoji:'🚗', kw:['ns ','ns.nl','ov-chipkaart','gvb','ret ','htm ','connexxion','arriva','benzine','shell','bp ','esso','tango ','parkeren','parking','taxi','uber','bolt ','anwb','wegenbelasting'] },
-  { name:'Abonnementen',  cls:'abonnementen',  emoji:'📱', kw:['netflix','spotify','youtube','amazon prime','disney','hbo','ziggo','kpn','t-mobile','vodafone','tele2','adobe','microsoft','apple.com','google','dropbox','gym','fitness','basic-fit'] },
-  { name:'Wonen',         cls:'wonen',         emoji:'🏠', kw:['huur','hypotheek','energie','nuon','vattenfall','essent','eneco','waterbedrijf','gemeentebelasting','verzekering','woning','electriciteit','gas '] },
-  { name:'Gezondheid',    cls:'gezondheid',    emoji:'💊', kw:['apotheek','huisarts','tandarts','ziekenhuis','fysiotherap','zorgverzekering','cz ','menzis','vgz','zilveren kruis','drogist','etos','kruidvat'] },
-  { name:'Kleding',       cls:'kleding',       emoji:'👕', kw:['h&m','zara','uniqlo','primark','wehkamp','bol.com','zalando','coolblue','action ','mediamarkt','ikea','hema'] },
-  { name:'Overig',        cls:'overig',        emoji:'📦', kw:[] }
-];
-
-function categorize(desc, amount) {
-  if (amount > 0) return CATS[0];
-  const d = desc.toLowerCase();
-  for (const c of CATS.slice(1)) {
-    if (c.kw.some(k => d.includes(k))) return c;
-  }
-  return CATS[CATS.length-1];
-}
-
-// ── FORMAT TABS ──────────────────────────────────────────────────────────────
-function switchTab(fmt) {
-  ['pdf','mt940','csv'].forEach(f => {
-    document.getElementById('zone-'+f).style.display = f===fmt ? 'block' : 'none';
-    document.getElementById('tab-'+f).classList.toggle('active', f===fmt);
-  });
-}
-
 // ── PDF PARSE (Rabobank PDF) ──────────────────────────────────────────────────
 async function parsePDF(file) {
   const zone = document.getElementById('zone-pdf');
@@ -1108,168 +820,409 @@ function loadDemo() {
 
 
 
+
+// ── DEMO DATA ─────────────────────────────────────────────────────────────────
+function loadDemo() {
+  const now = new Date();
+  const raw = [
+    ['Salaris werkgever BV',3144,'cb'],['Freelance project',450,'cb'],
+    ['Albert Heijn boodschappen',-67.5,'bc'],['Jumbo supermarkt',-89.3,'bc'],['Lidl wekelijks',-62.3,'bc'],
+    ['Netflix',-15.99,'ei'],['Spotify',-9.99,'ei'],['Ziggo internet',-47.5,'ei'],
+    ['Disney+',-8.99,'ei'],['Basic-Fit monthly',-29.99,'ei'],['T-Mobile',-35,'ei'],
+    ['NS Reizen',-52.4,'id'],['Shell benzine',-78,'ba'],['GVB OV',-20,'bc'],
+    ['Huur betaling',-950,'ei'],['Vattenfall energie',-123,'ei'],
+    ['Thuisbezorgd pizza',-32.5,'id'],["McDonald's",-12.8,'ba'],['Starbucks',-5.4,'bc'],
+    ['Zilveren Kruis',-149,'ei'],['Apotheek',-14.5,'bc'],
+    ['Zalando kleding',-89,'id'],['H&M',-54,'bc'],['Action',-28.5,'bc'],
+    ['Spaarrekening',-200,'tb'],['Vakantie pot',-150,'tb'],
+    ['AEGON HYPOTHEKEN BV',-1100,'ei'],
+    ['Belastingdienst toeslagen',694,'cb'],
+  ];
+  const txs = raw.filter(([_,a,t])=>t!=='tb').map(([desc,amount,type]) => {
+    const date = new Date(now);
+    date.setDate(date.getDate() - Math.floor(Math.random()*28));
+    return { date, dateStr:date.toISOString().split('T')[0], desc, amount, type, cat:categorize(desc,amount), fixed:isFixedLast(desc,amount), excluded:false, override:null };
+  }).sort((a,b)=>b.date-a.date);
+  process(txs);
+}
+
+// ── FIXED LASTEN DETECTIE ────────────────────────────────────────────────────
+function isFixedLast(desc, amount) {
+  if (amount >= 0) return false;
+  const d = desc.toLowerCase();
+  return /hypotheek|huur|zorgverzekering|zilveren kruis|nationale.nederlanden zorg|menzis|cz |vgz|aegon|vattenfall|nuon|essent|eneco|ziggo|kpn|t-mobile|vodafone|tele2|oasen|waterbedrijf|gemeente.*belasting|rioolheffing|ozb/.test(d);
+}
+
+// ── CATEGORIES ────────────────────────────────────────────────────────────────
+const CATS = [
+  {name:'Inkomen',cls:'inkomen',emoji:'💶',kw:['salaris','loon','inkomen','pensioen','uitkering','freelance']},
+  {name:'Sparen',cls:'sparen',emoji:'🏦',kw:['spaarrekening','spaarpot','sparen']},
+  {name:'Vaste lasten',cls:'vastlast',emoji:'🏠',kw:['hypotheek','huur','aegon','vattenfall','essent','eneco','nuon','ziggo','kpn','t-mobile','oasen','zilveren kruis','nationale-nederlanden zorg','menzis','cz ','gemeente']},
+  {name:'Boodschappen',cls:'boodschappen',emoji:'🛒',kw:['albert heijn','jumbo','lidl','aldi','plus supermarkt','dirk','vomar','ah ','deen','supermarkt','hoogvliet']},
+  {name:'Horeca',cls:'horeca',emoji:'🍔',kw:['restaurant','cafe ','café','mcdonalds','burger king','pizza','starbucks','thuisbezorgd','deliveroo','uber eats','snackbar','bakker','kfc','cafetaria']},
+  {name:'Transport',cls:'transport',emoji:'🚗',kw:['ns ','ns.nl','ov-chipkaart','gvb','ret ','htm ','connexxion','arriva','benzine','shell','bp ','esso','tango ','parkeren','parking','taxi','uber','bolt ','anwb','wegenbelasting','tesla']},
+  {name:'Abonnementen',cls:'abonnementen',emoji:'📱',kw:['netflix','spotify','youtube','amazon prime','disney','hbo','adobe','microsoft','apple.com','google','dropbox','gym','fitness','basic-fit','transip']},
+  {name:'Gezondheid',cls:'gezondheid',emoji:'💊',kw:['apotheek','huisarts','tandarts','ziekenhuis','fysiotherap','drogist','etos','kruidvat','paulussen','praktijk','witgoed']},
+  {name:'Kleding',cls:'kleding',emoji:'👕',kw:['h&m','zara','uniqlo','primark','wehkamp','bol.com','zalando','coolblue','action ','mediamarkt','ikea','hema','prenatal']},
+  {name:'Kinderopvang',cls:'kinderopvang',emoji:'👶',kw:['kibeo','kinderopvang','gastouder','mijngastouderburo','viaviela','childcare']},
+  {name:'Overig',cls:'overig',emoji:'📦',kw:[]}
+];
+function categorize(desc, amount) {
+  if (amount > 0) return CATS[0];
+  const d = desc.toLowerCase();
+  for (const c of CATS.slice(1)) { if (c.kw.some(k=>d.includes(k))) return c; }
+  return CATS[CATS.length-1];
+}
+
+// ── FILE HANDLERS ─────────────────────────────────────────────────────────────
+function switchTab(fmt) {
+  ['pdf','mt940','csv'].forEach(f=>{
+    document.getElementById('zone-'+f).style.display=f===fmt?'block':'none';
+    document.getElementById('tab-'+f).classList.toggle('active',f===fmt);
+  });
+}
+document.getElementById('filePdf').addEventListener('change', async e=>{
+  const file=e.target.files[0]; if(!file) return; e.target.value='';
+  const zone=document.getElementById('zone-pdf');
+  const card=zone.querySelector('.upload-card'); card.style.display='none';
+  const prog=document.createElement('div');
+  prog.innerHTML=`<div style="background:var(--surface);border:2px dashed var(--accent);border-radius:12px;padding:22px;text-align:center;margin:10px 0;"><div class="spinner" style="margin:0 auto 8px;"></div><div id="pdfTxt" style="font-size:11px;color:var(--accent);">PDF laden...</div><div style="background:var(--border);border-radius:4px;height:3px;margin-top:8px;overflow:hidden;"><div id="pdfBar" style="background:var(--accent);height:100%;width:0%;border-radius:4px;transition:width .3s;"></div></div></div>`;
+  zone.insertBefore(prog, zone.querySelector('.howto-card'));
+  const sp=(p,t)=>{const b=document.getElementById('pdfBar'),x=document.getElementById('pdfTxt');if(b)b.style.width=p+'%';if(x)x.textContent=t;};
+  try {
+    const buf=await file.arrayBuffer(); sp(20,'PDF inladen...');
+    const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+    let allItems=[];
+    for(let p=1;p<=pdf.numPages;p++){
+      sp(20+Math.round(p/pdf.numPages*70),`Pagina ${p} van ${pdf.numPages}...`);
+      const pg=await pdf.getPage(p); const vp=pg.getViewport({scale:1});
+      const ct=await pg.getTextContent();
+      for(const it of ct.items){const s=it.str?.trim();if(!s)continue;allItems.push({text:s,x:Math.round(it.transform[4]*10)/10,y:Math.round((vp.height-it.transform[5])*10)/10,width:it.width||0,page:p});}
+    }
+    sp(100,'Verwerken...');
+    const raw=parseRaboPDFItems(allItems);
+    prog.remove(); card.style.display='';
+    if(!raw.length){showErr(zone,'Geen transacties herkend. Probeer MT940 via rabo.nl of laad de demo data.');return;}
+    process(raw.map(t=>({...t,fixed:isFixedLast(t.desc,t.amount),excluded:false,override:null})));
+  } catch(e){ prog.remove(); card.style.display=''; showErr(zone,'PDF kon niet worden gelezen.'); }
+});
+document.getElementById('fileMt940').addEventListener('change', e=>{
+  const file=e.target.files[0]; if(!file) return; e.target.value='';
+  const r=new FileReader(); r.onload=ev=>{
+    const raw=parseMT940(ev.target.result);
+    if(!raw.length){showErr(document.getElementById('zone-mt940'),'Geen transacties gevonden.');return;}
+    process(raw.map(t=>({...t,fixed:isFixedLast(t.desc,t.amount),excluded:false,override:null})));
+  }; r.readAsText(file,'UTF-8');
+});
+document.getElementById('fileCsv').addEventListener('change', e=>{
+  const file=e.target.files[0]; if(!file) return; e.target.value='';
+  const r=new FileReader(); r.onload=ev=>{
+    const raw=parseCSV(ev.target.result);
+    if(!raw.length){showErr(document.getElementById('zone-csv'),'Geen transacties gevonden.');return;}
+    process(raw.map(t=>({...t,fixed:isFixedLast(t.desc,t.amount),excluded:false,override:null})));
+  }; r.readAsText(file,'UTF-8');
+});
+function showErr(container,msg){
+  document.getElementById('uploadError')?.remove();
+  const el=document.createElement('div'); el.id='uploadError';
+  el.innerHTML=`<div style="background:var(--surface);border:1px solid var(--expense);border-left:3px solid var(--expense);border-radius:8px;padding:11px;margin:8px 0;"><div style="font-size:11px;color:var(--expense);font-weight:700;margin-bottom:3px;">Niet gelukt</div><div style="font-size:10px;color:var(--muted);line-height:1.6;margin-bottom:7px;">${msg}</div><div style="display:flex;gap:6px;"><button onclick="switchTab('mt940')" style="background:rgba(200,245,98,.08);border:1px solid var(--accent);border-radius:6px;padding:5px 9px;font-size:10px;color:var(--accent);cursor:pointer;">Probeer MT940</button><button onclick="loadDemo();document.getElementById('uploadError')?.remove();" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:5px 9px;font-size:10px;color:var(--muted);cursor:pointer;">Demo laden</button></div></div>`;
+  const h=container.querySelector('.howto-card'); if(h)container.insertBefore(el,h); else container.appendChild(el);
+}
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let allTx=[], filteredCat='Alle', editingIdx=-1, charts={};
+
 // ── PROCESS ───────────────────────────────────────────────────────────────────
 function process(txs) {
-  allTx = txs;
-  filteredCat = 'Alle';
+  allTx=txs;
+  filteredCat='Alle';
   document.getElementById('pageUpload').classList.remove('active');
-  document.getElementById('bottomNav').style.display = 'flex';
-  document.getElementById('resetBtn').style.display = 'flex';
+  document.getElementById('bottomNav').classList.remove('hidden');
+  document.getElementById('resetBtn').style.display='flex';
   document.getElementById('installBanner').classList.add('hidden');
   document.getElementById('uploadError')?.remove();
-  showPage('pageDash', 'nav-dash');
+  showPage('pageDash','nav-dash');
   renderDash();
   renderTxList();
   renderAnonPrompt();
   calcBelasting();
 }
 
-function fmt(n) { return new Intl.NumberFormat('nl-NL',{style:'currency',currency:'EUR'}).format(n); }
+function fmt(n){return new Intl.NumberFormat('nl-NL',{style:'currency',currency:'EUR'}).format(n);}
+function fmtB(n){return '€'+Math.round(n).toLocaleString('nl-NL');}
 
 // ── DASHBOARD ─────────────────────────────────────────────────────────────────
 function renderDash() {
-  const inc = allTx.filter(t=>t.amount>0).reduce((s,t)=>s+t.amount,0);
-  const exp = Math.abs(allTx.filter(t=>t.amount<0).reduce((s,t)=>s+t.amount,0));
-  const net = inc - exp;
-  const rate = inc > 0 ? Math.round((net/inc)*100) : 0;
-  document.getElementById('statIncome').textContent = fmt(inc);
-  document.getElementById('statExpense').textContent = fmt(exp);
-  document.getElementById('statBalance').textContent = fmt(net);
-  document.getElementById('statBalance').className = 'stat-value ' + (net>=0?'pos':'neg');
-  document.getElementById('statSavings').textContent = rate + '%';
-  document.getElementById('statIncomeCount').textContent = allTx.filter(t=>t.amount>0).length + ' transacties';
-  document.getElementById('statExpenseCount').textContent = allTx.filter(t=>t.amount<0).length + ' transacties';
-  document.getElementById('txCountLabel').textContent = allTx.length + ' transacties';
-  const dates = allTx.map(t=>t.date);
-  const mn = new Date(Math.min(...dates)), mx = new Date(Math.max(...dates));
-  document.getElementById('periodLabel').textContent = mn.toLocaleDateString('nl-NL',{day:'numeric',month:'short'}) + ' – ' + mx.toLocaleDateString('nl-NL',{day:'numeric',month:'short',year:'numeric'});
+  const active=allTx.filter(t=>!t.excluded);
+  const inc=active.filter(t=>t.amount>0).reduce((s,t)=>s+t.amount,0);
+  const expAll=active.filter(t=>t.amount<0);
+  const expFixed=expAll.filter(t=>t.fixed);
+  const expVar=expAll.filter(t=>!t.fixed);
+  const totalExp=expAll.reduce((s,t)=>s+Math.abs(t.amount),0);
+  const totalFixed=expFixed.reduce((s,t)=>s+Math.abs(t.amount),0);
+  const totalVar=expVar.reduce((s,t)=>s+Math.abs(t.amount),0);
 
+  const dates=active.map(t=>t.date); 
+  const minD=new Date(Math.min(...dates)), maxD=new Date(Math.max(...dates));
+  const days=Math.max(1,Math.round((maxD-minD)/86400000)+1);
+  const dailyVar=totalVar/days;
+
+  document.getElementById('statIncome').textContent=fmt(inc);
+  document.getElementById('statExpense').textContent=fmt(totalExp);
+  document.getElementById('statDaily').textContent=fmt(dailyVar);
+  document.getElementById('statFixed').textContent=fmt(totalFixed);
+  document.getElementById('statIncomeSub').textContent=active.filter(t=>t.amount>0).length+' ontvangsten';
+  document.getElementById('statExpenseSub').textContent=expAll.length+' transacties';
+  document.getElementById('statFixedSub').textContent=expFixed.length+' vaste posten';
+
+  document.getElementById('txCountLabel').textContent=active.length+' transacties';
+  document.getElementById('periodLabel').textContent=minD.toLocaleDateString('nl-NL',{day:'numeric',month:'short'})+' – '+maxD.toLocaleDateString('nl-NL',{day:'numeric',month:'short',year:'numeric'});
+
+  // Transparency - use stored rabo totals if available
+  const raboAf=allTx._raboAf||'—', raboBij=allTx._raboBij||'—';
+  document.getElementById('transpRaboAf').textContent=raboAf;
+  document.getElementById('transpOnzeAf').textContent=fmt(totalExp);
+  document.getElementById('transpRaboBij').textContent=raboBij;
+  document.getElementById('transpOnzeBij').textContent=fmt(inc);
+
+  // Charts
   Object.values(charts).forEach(c=>c.destroy()); charts={};
+  const catT={};
+  expVar.forEach(t=>{const n=(t.override||t.cat).name; catT[n]=(catT[n]||0)+Math.abs(t.amount);});
+  const catS=Object.entries(catT).sort((a,b)=>b[1]-a[1]);
+  const colors=['#ffd166','#ef8c8c','#5c8fff','#c77dff','#4cc9f0','#62e8a0','#ff9a3c','#8b8fa8','#ffd166','#38d9d9'];
+  charts.cat=new Chart(document.getElementById('catChart'),{type:'doughnut',data:{labels:catS.map(c=>c[0]),datasets:[{data:catS.map(c=>c[1]),backgroundColor:colors.slice(0,catS.length),borderWidth:0}]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{color:'#e8eaf0',font:{family:'DM Mono',size:9},padding:6,boxWidth:9}},tooltip:{callbacks:{label:ctx=>` ${fmt(ctx.parsed)}`},backgroundColor:'#1e2028',titleColor:'#e8eaf0',bodyColor:'#8b8fa8',borderColor:'#2a2d3a',borderWidth:1}}}});
 
-  // Cat donut
-  const catT = {};
-  allTx.filter(t=>t.amount<0&&t.cat.name!=='Sparen').forEach(t=>{ catT[t.cat.name]=(catT[t.cat.name]||0)+Math.abs(t.amount); });
-  const catS = Object.entries(catT).sort((a,b)=>b[1]-a[1]);
-  charts.cat = new Chart(document.getElementById('catChart'), {
-    type:'doughnut',
-    data:{ labels:catS.map(c=>c[0]), datasets:[{data:catS.map(c=>c[1]),backgroundColor:['#ffd166','#ef8c8c','#5c8fff','#c77dff','#4cc9f0','#62e8a0','#ff9a3c','#8b8fa8'],borderWidth:0}] },
-    options:{ responsive:true, plugins:{ legend:{ position:'bottom', labels:{color:'#e8eaf0',font:{family:'DM Mono',size:10},padding:8,boxWidth:10} }, tooltip:{callbacks:{label:ctx=>` ${fmt(ctx.parsed)}`},backgroundColor:'#1e2028',titleColor:'#e8eaf0',bodyColor:'#8b8fa8',borderColor:'#2a2d3a',borderWidth:1} } }
+  // Monthly var vs fixed
+  const months={};
+  active.forEach(t=>{
+    const k=t.date.toLocaleDateString('nl-NL',{month:'short',year:'2-digit'});
+    if(!months[k])months[k]={var:0,fixed:0,inc:0};
+    if(t.amount<0){if(t.fixed)months[k].fixed+=Math.abs(t.amount);else months[k].var+=Math.abs(t.amount);}
+    else months[k].inc+=t.amount;
   });
+  const mK=Object.keys(months).slice(-6);
+  charts.month=new Chart(document.getElementById('monthChart'),{type:'bar',data:{labels:mK,datasets:[{label:'Variabel',data:mK.map(k=>months[k]?.var||0),backgroundColor:'rgba(255,107,107,.75)',borderRadius:4},{label:'Vast',data:mK.map(k=>months[k]?.fixed||0),backgroundColor:'rgba(92,143,255,.75)',borderRadius:4}]},options:{responsive:true,plugins:{legend:{labels:{color:'#e8eaf0',font:{family:'DM Mono',size:9},padding:6,boxWidth:9}},tooltip:{callbacks:{label:ctx=>` ${fmt(ctx.parsed.y)}`},backgroundColor:'#1e2028',titleColor:'#e8eaf0',bodyColor:'#8b8fa8',borderColor:'#2a2d3a',borderWidth:1}},scales:{x:{grid:{color:'#2a2d3a'},ticks:{color:'#6b7080',font:{family:'DM Mono',size:9}}},y:{grid:{color:'#2a2d3a'},ticks:{color:'#6b7080',font:{family:'DM Mono',size:9},callback:v=>'€'+Math.round(v)}}}}});
+}
 
-  // Monthly bar
-  const months = {};
-  allTx.forEach(t=>{
-    const k = t.date.toLocaleDateString('nl-NL',{month:'short',year:'2-digit'});
-    if(!months[k]) months[k]={inc:0,exp:0};
-    if(t.amount>0) months[k].inc+=t.amount; else months[k].exp+=Math.abs(t.amount);
-  });
-  const mK = Object.keys(months).slice(-6);
-  charts.month = new Chart(document.getElementById('monthChart'), {
-    type:'bar',
-    data:{ labels:mK, datasets:[
-      {label:'Inkomsten',data:mK.map(k=>months[k]?.inc||0),backgroundColor:'rgba(98,232,160,.7)',borderRadius:4},
-      {label:'Uitgaven',data:mK.map(k=>months[k]?.exp||0),backgroundColor:'rgba(255,107,107,.7)',borderRadius:4}
-    ]},
-    options:{ responsive:true, plugins:{ legend:{labels:{color:'#e8eaf0',font:{family:'DM Mono',size:10},padding:8,boxWidth:10}}, tooltip:{callbacks:{label:ctx=>` ${fmt(ctx.parsed.y)}`},backgroundColor:'#1e2028',titleColor:'#e8eaf0',bodyColor:'#8b8fa8',borderColor:'#2a2d3a',borderWidth:1} }, scales:{ x:{grid:{color:'#2a2d3a'},ticks:{color:'#6b7080',font:{family:'DM Mono',size:10}}}, y:{grid:{color:'#2a2d3a'},ticks:{color:'#6b7080',font:{family:'DM Mono',size:10},callback:v=>'€'+Math.round(v)}} } }
-  });
+function toggleTransp(){
+  const n=document.getElementById('transpNote');
+  const b=document.querySelector('.transp-toggle');
+  n.classList.toggle('hidden');
+  b.textContent=n.classList.contains('hidden')?'uitleg ▾':'sluiten ▴';
 }
 
 // ── TRANSACTIONS ──────────────────────────────────────────────────────────────
-function renderTxList() {
-  const cats = ['Alle', ...new Set(allTx.map(t=>t.cat.name))];
-  document.getElementById('filterScroll').innerHTML = cats.map(c =>
-    `<button class="chip ${c===filteredCat?'active':''}" onclick="filterTx('${c}')">${c}</button>`
-  ).join('');
-  const txs = filteredCat==='Alle' ? allTx : allTx.filter(t=>t.cat.name===filteredCat);
-  document.getElementById('txList').innerHTML = txs.slice(0,300).map(t => `
-    <div class="tx-item">
-      <div class="tx-cat-icon bg-${t.cat.cls}">${t.cat.emoji}</div>
+function renderTxList(){
+  const cats=['Alle',...new Set(allTx.map(t=>(t.override||t.cat).name))];
+  document.getElementById('filterScroll').innerHTML=cats.map(c=>`<button class="chip ${c===filteredCat?'active':''}" onclick="filterTx('${c}')">${c}</button>`).join('');
+  const txs=filteredCat==='Alle'?allTx:allTx.filter(t=>(t.override||t.cat).name===filteredCat);
+  document.getElementById('txCountDisp').textContent=txs.length+' transacties';
+  const el=document.getElementById('txList');
+  el.innerHTML='';
+  txs.slice(0,300).forEach((t,idx)=>{
+    const realIdx=allTx.indexOf(t);
+    const cat=t.override||t.cat;
+    const div=document.createElement('div');
+    div.className='tx-item'+(t.excluded?' excluded':'');
+    div.onclick=()=>openEditor(realIdx);
+    div.innerHTML=`
+      <div class="tx-cat-icon bg-${cat.cls}">${cat.emoji}</div>
       <div class="tx-info">
         <div class="tx-desc">${t.desc}</div>
-        <div class="tx-date">${t.date.toLocaleDateString('nl-NL',{day:'2-digit',month:'short',year:'numeric'})} · ${t.cat.name}</div>
+        <div class="tx-meta">
+          ${t.date.toLocaleDateString('nl-NL',{day:'2-digit',month:'short',year:'numeric'})}
+          ${t.fixed?'<span class="fixed-tag">vast</span>':''}
+          ${t.excluded?'<span class="excl-tag">uitgesloten</span>':''}
+        </div>
       </div>
-      <div class="tx-amount ${t.amount>0?'cr':'dr'}">${fmt(t.amount)}</div>
-    </div>
-  `).join('');
-}
+      <div class="tx-controls">
+        <div class="tx-amount ${t.amount>0?'cr':'dr'}">${fmt(t.amount)}</div>
+        <div class="cat-badge" style="color:${getCatColor(cat.cls)};border-color:${getCatColor(cat.cls)}40;background:${getCatColor(cat.cls)}12;">${cat.name}</div>
+      </div>`;
+    el.appendChild(div);
 
-function filterTx(cat) {
-  filteredCat = cat;
-  renderTxList();
-}
-
-// ── ANON PROMPT ───────────────────────────────────────────────────────────────
-function buildAnonPrompt() {
-  const catT = {};
-  allTx.filter(t=>t.amount<0).forEach(t=>{ catT[t.cat.name]=(catT[t.cat.name]||0)+Math.abs(t.amount); });
-  const inc = allTx.filter(t=>t.amount>0).reduce((s,t)=>s+t.amount,0);
-  const exp = Object.values(catT).reduce((s,v)=>s+v,0);
-  const months = Math.max(1, Math.ceil(allTx.length / 15));
-  const rate = inc > 0 ? Math.round(((inc-exp)/inc)*100) : 0;
-
-  return `Je bent een vriendelijke financieel adviseur. Analyseer dit uitgavenpatroon en geef 4-5 concrete, persoonlijke bespaartips in het Nederlands.
-
-FINANCIEEL OVERZICHT (${months} maand/maanden, geanonimiseerd):
-- Totaal inkomsten: ${fmt(inc)}
-- Totaal uitgaven: ${fmt(exp)}
-- Netto: ${fmt(inc-exp)}
-- Spaarquote: ${rate}%
-
-UITGAVEN PER CATEGORIE:
-${Object.entries(catT).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`- ${k}: ${fmt(v)}`).join('\n')}
-
-Geef praktische, realistische tips. Focus op de categorieën waar het meeste te besparen valt. Noem ook positieve dingen als de cijfers er goed uitzien.`;
-}
-
-function renderAnonPrompt() {
-  if (!allTx.length) return;
-  document.getElementById('anonPreview').textContent = buildAnonPrompt();
-}
-
-function copyPrompt() {
-  const prompt = buildAnonPrompt();
-  navigator.clipboard.writeText(prompt).then(() => {
-    const btn = document.querySelector('.copy-btn');
-    btn.textContent = '✅ Gekopieerd! Plak in Claude.ai';
-    setTimeout(() => { btn.textContent = '📋 Kopieer prompt (plak zelf in Claude.ai)'; }, 3000);
-  }).catch(() => {
-    alert('Kon niet kopiëren. Selecteer de tekst handmatig.');
+    // Editor
+    if(editingIdx===realIdx){
+      const ed=document.createElement('div');
+      ed.className='tx-editor open';
+      ed.innerHTML=`
+        <div class="editor-title">✎ ${t.desc.substring(0,40)}</div>
+        <div class="editor-row"><label class="editor-label">Categorie</label>
+          <select class="editor-select" id="edCat">
+            ${CATS.slice(1).map(c=>`<option value="${c.name}" ${(t.override||t.cat).name===c.name?'selected':''}>${c.emoji} ${c.name}</option>`).join('')}
+          </select></div>
+        <div class="editor-row"><label class="editor-label">Type</label>
+          <select class="editor-select" id="edFixed">
+            <option value="auto" ${!t.fixedOverride?'selected':''}>Automatisch</option>
+            <option value="fixed" ${t.fixedOverride==='fixed'?'selected':''}>Vaste last</option>
+            <option value="var" ${t.fixedOverride==='var'?'selected':''}>Variabele last</option>
+          </select></div>
+        <div class="editor-btns">
+          <button class="btn-sm primary" onclick="saveEdit(${realIdx})">Opslaan</button>
+          <button class="btn-sm ${t.excluded?'primary':'danger'}" onclick="toggleExclude(${realIdx})">${t.excluded?'Includeren':'Uitsluiten'}</button>
+          <button class="btn-sm ghost" onclick="editingIdx=-1;renderTxList()">Annuleer</button>
+        </div>`;
+      el.appendChild(ed);
+    }
   });
 }
 
-// ── AI ANALYSIS ───────────────────────────────────────────────────────────────
-async function runAIAnalysis() {
-  const btn = document.getElementById('aiAnalyzeBtn');
-  const area = document.getElementById('aiResultArea');
-  btn.disabled = true; btn.textContent = '⏳ Analyseren...';
-  area.innerHTML = `<div class="loading-row"><div class="spinner"></div>Claude analyseert je data...</div>`;
+function getCatColor(cls){const m={inkomen:'#c8f562',sparen:'#38d9d9',boodschappen:'#ffd166',horeca:'#ef8c8c',transport:'#5c8fff',abonnementen:'#c77dff',wonen:'#4cc9f0',gezondheid:'#62e8a0',kleding:'#ff9a3c',overig:'#8b8fa8',vastlast:'#5c8fff',kinderopvang:'#ffd166'};return m[cls]||'#8b8fa8';}
 
-  const prompt = buildAnonPrompt() + `\n\nReageer ALLEEN in JSON (geen markdown):\n[{"icon":"emoji","type":"saving of warning","title":"Korte titel","desc":"Uitleg","saving":"bedrag of null"}]`;
+function filterTx(cat){filteredCat=cat;editingIdx=-1;renderTxList();}
+function openEditor(idx){editingIdx=editingIdx===idx?-1:idx;renderTxList();document.getElementById('scrollArea').scrollTop+=200;}
+function saveEdit(idx){
+  const catName=document.getElementById('edCat').value;
+  const fixedVal=document.getElementById('edFixed').value;
+  const cat=CATS.find(c=>c.name===catName)||CATS[CATS.length-1];
+  allTx[idx].override=cat;
+  allTx[idx].fixedOverride=fixedVal==='auto'?null:fixedVal;
+  if(fixedVal!=='auto')allTx[idx].fixed=fixedVal==='fixed';
+  editingIdx=-1;
+  renderTxList(); renderDash(); renderAnonPrompt();
+}
+function toggleExclude(idx){allTx[idx].excluded=!allTx[idx].excluded;editingIdx=-1;renderTxList();renderDash();renderAnonPrompt();}
 
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1000, messages:[{role:'user',content:prompt}] })
-    });
-    const data = await res.json();
-    const text = data.content?.map(b=>b.text||'').join('') || '';
-    const tips = JSON.parse(text.replace(/```json|```/g,'').trim());
-    area.innerHTML = `<div style="margin-top:12px;font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;">AI Bespaartips</div>` +
-      tips.map(t=>`<div class="tip-item ${t.type==='warning'?'warn':'save'}"><span class="tip-icon">${t.icon||'💡'}</span><div class="tip-body"><strong>${t.title}</strong><p>${t.desc}</p>${t.saving?`<div class="tip-saving">💰 ${t.saving}</div>`:''}</div></div>`).join('');
-  } catch(e) {
-    area.innerHTML = `<div style="color:var(--muted);font-size:12px;padding:12px">Fout bij ophalen. Gebruik de kopieer-optie om handmatig te analyseren.</div>`;
+// ── ANON PROMPT ───────────────────────────────────────────────────────────────
+function buildAnonPrompt(){
+  const active=allTx.filter(t=>!t.excluded);
+  const inc=active.filter(t=>t.amount>0);
+  const exp=active.filter(t=>t.amount<0);
+  const fixedExp=exp.filter(t=>t.fixed);
+  const varExp=exp.filter(t=>!t.fixed);
+  const totalInc=inc.reduce((s,t)=>s+t.amount,0);
+  const totalExp=exp.reduce((s,t)=>s+Math.abs(t.amount),0);
+  const totalFixed=fixedExp.reduce((s,t)=>s+Math.abs(t.amount),0);
+  const totalVar=varExp.reduce((s,t)=>s+Math.abs(t.amount),0);
+  const dates=active.map(t=>t.date);
+  const minD=new Date(Math.min(...dates)),maxD=new Date(Math.max(...dates));
+  const days=Math.max(1,Math.round((maxD-minD)/86400000)+1);
+  const profGezin=document.getElementById('profGezin')?.value||'onbekend';
+  const profWoning=document.getElementById('profWoning')?.value||'onbekend';
+
+  // Anonimiseer werkgevers: groepeer cb/sb op bedrag-patroon
+  const salarissen=inc.filter(t=>['cb','sb'].includes(t.type||''));
+  const werkgevers={};let wIdx=0;
+  salarissen.forEach(t=>{
+    const key=Math.round(t.amount/100)*100;
+    if(!werkgevers[key]){wIdx++;werkgevers[key]=`Werkgever ${String.fromCharCode(64+wIdx)}`;}
+  });
+
+  // Vaste lasten anonimiseren
+  const fixedCats={};
+  fixedExp.forEach(t=>{
+    const cat=(t.override||t.cat).name;
+    fixedCats[cat]=(fixedCats[cat]||0)+Math.abs(t.amount);
+  });
+
+  // Variabele categorieën
+  const varCats={};
+  varExp.forEach(t=>{
+    const cat=(t.override||t.cat).name;
+    varCats[cat]=(varCats[cat]||0)+Math.abs(t.amount);
+  });
+
+  // Salarispatroon
+  const salGroups={};
+  salarissen.forEach(t=>{
+    const key=Math.round(t.amount/100)*100;
+    salGroups[key]=(salGroups[key]||0)+1;
+  });
+
+  const rate=totalInc>0?Math.round(((totalInc-totalExp)/totalInc)*100):0;
+
+  let prompt=`Je bent een ervaren Nederlandse financieel adviseur met uitgebreide kennis van:
+- Inkomstenbelasting 2026 (Box 1, schijven, heffingskortingen)
+- Toeslagen (kinderopvangtoeslag, huurtoeslag, kindgebonden budget)
+- Hypotheekrenteaftrek en eigenwoningforfait
+- Arbeidskorting en algemene heffingskorting optimalisatie
+
+Analyseer dit geanonimiseerde bankafschrift en geef CONCRETE adviezen met euro-bedragen.
+
+PERIODE: ${minD.toLocaleDateString('nl-NL',{day:'numeric',month:'long',year:'numeric'})} t/m ${maxD.toLocaleDateString('nl-NL',{day:'numeric',month:'long',year:'numeric'})} (${days} dagen)
+GEZINSSITUATIE: ${profGezin==='partner_kinderen'?'Partners met kinderen':profGezin==='partner'?'Partners geen kinderen':profGezin==='alleenstaand_kinderen'?'Alleenstaand met kinderen':'Alleenstaand'}
+WOONSITUATIE: ${profWoning==='koop'?'Eigen woning (hypotheek)':'Huurwoning'}
+
+INKOMEN (extern ontvangen):`;
+
+  Object.entries(salGroups).forEach(([bedrag,aantal])=>{
+    const naam=werkgevers[parseInt(bedrag)]||'Werkgever X';
+    const jaarBasis=Math.round(parseInt(bedrag)*12);
+    prompt+=`
+  ${naam}: ${aantal}x ~${fmtB(parseInt(bedrag))} → jaarbasis ~${fmtB(jaarBasis)}`;
+  });
+  const toeslagen=inc.filter(t=>!['cb','sb'].includes(t.type||''));
+  if(toeslagen.length>0){
+    const totToeslagen=toeslagen.reduce((s,t)=>s+t.amount,0);
+    prompt+=`
+  Toeslagen/overig: ${fmtB(totToeslagen)}`;
   }
-  btn.disabled = false; btn.textContent = '🔄 Opnieuw analyseren';
+  prompt+=`
+  Totaal extern inkomen: ${fmtB(totalInc)}
+
+VASTE LASTEN (maandelijks terugkerend):`;
+  Object.entries(fixedCats).forEach(([cat,bedrag])=>{
+    prompt+=`
+  ${cat}: ${fmtB(bedrag)}`;
+  });
+  prompt+=`
+  Subtotaal vast: ${fmtB(totalFixed)}
+
+VARIABELE UITGAVEN:`;
+  Object.entries(varCats).sort((a,b)=>b[1]-a[1]).forEach(([cat,bedrag])=>{
+    prompt+=`
+  ${cat}: ${fmtB(bedrag)}`;
+  });
+  prompt+=`
+  Subtotaal variabel: ${fmtB(totalVar)}
+  Gemiddeld per dag (variabel): ${fmtB(totalVar/days)}
+
+SAMENVATTING:
+  Totaal uitgaven (extern): ${fmtB(totalExp)}
+  Netto: ${fmtB(totalInc-totalExp)}
+  Spaarquote: ${rate}%
+
+INTERN NIET MEEGETELD: eigen rekening-overboekingen (spaarpotjes) zijn uitgesloten — dit zijn interne transfers, geen echte inkomsten of uitgaven.
+
+Geef nu:
+1. De 3 grootste concrete besparingsmogelijkheden (met bedrag en actie)
+2. Eventuele belasting/toeslag-kansen die benut kunnen worden
+3. Beoordeling van de vaste lasten als percentage van inkomen
+4. Één concreet actieplan voor de komende 30 dagen`;
+
+  return prompt;
 }
 
-// ── NAVIGATION ────────────────────────────────────────────────────────────────
-function showPage(pageId, navId) {
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById(pageId).classList.add('active');
-  document.getElementById(navId).classList.add('active');
-  document.getElementById('scrollArea').scrollTop = 0;
+function renderAnonPrompt(){
+  if(!allTx.length) return;
+  document.getElementById('anonPreview').textContent=buildAnonPrompt();
+}
+function copyPrompt(){
+  const p=buildAnonPrompt();
+  navigator.clipboard.writeText(p).then(()=>{
+    const b=document.querySelector('.copy-btn');
+    b.textContent='✅ Gekopieerd! Plak in Claude.ai';
+    setTimeout(()=>{b.textContent='📋 Kopieer → plak in Claude.ai';},3000);
+  }).catch(()=>alert('Selecteer de tekst handmatig.'));
+}
+async function runAI(){
+  const btn=document.getElementById('aiBtn');
+  const area=document.getElementById('aiResult');
+  btn.disabled=true; btn.textContent='⏳ Analyseren...';
+  area.innerHTML=`<div style="display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;padding:14px 0;"><div class="spinner"></div>Claude analyseert je financiën...</div>`;
+  const prompt=buildAnonPrompt()+'
+
+Reageer ALLEEN in JSON (geen markdown backticks):
+[{"icon":"emoji","type":"saving of warning","title":"Titel","desc":"Uitleg 2 zinnen","saving":"bedrag of null"}]';
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,messages:[{role:'user',content:prompt}]})});
+    const data=await r.json();
+    const text=data.content?.map(b=>b.text||'').join('')||'';
+    const tips=JSON.parse(text.replace(/```json|```/g,'').trim());
+    area.innerHTML=`<div style="font-size:9px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin:10px 0 7px;">Advies</div>`+tips.map(t=>`<div class="tip-item ${t.type==='warning'?'warn':'save'}"><span class="tip-icon">${t.icon||'💡'}</span><div class="tip-body"><strong>${t.title}</strong><p>${t.desc}</p>${t.saving?`<div class="tip-saving">💰 ${t.saving}</div>`:''}</div></div>`).join('');
+  }catch(e){area.innerHTML=`<div style="color:var(--muted);font-size:11px;padding:12px;">Fout. Gebruik de kopieer-optie voor Claude.ai.</div>`;}
+  btn.disabled=false; btn.textContent='🔄 Opnieuw analyseren';
 }
 
 // ── BELASTING MODULE ──────────────────────────────────────────────────────────
@@ -1374,43 +1327,62 @@ function fmtB(n) { return '€'+Math.round(n).toLocaleString('nl-NL'); }
   document.getElementById(id)?.addEventListener('input', calcBelasting);
 });
 
+
+// ── NAVIGATION ────────────────────────────────────────────────────────────────
+function showPage(pid,nid){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById(pid).classList.add('active');
+  document.getElementById(nid).classList.add('active');
+  document.getElementById('scrollArea').scrollTop=0;
+}
+
 // ── RESET ─────────────────────────────────────────────────────────────────────
-function resetApp() {
-  allTx = [];
-  filteredCat = 'Alle';
+function resetApp(){
+  allTx=[]; editingIdx=-1; filteredCat='Alle';
   Object.values(charts).forEach(c=>c.destroy()); charts={};
-  if (bChartInst) { bChartInst.destroy(); bChartInst = null; }
-  document.getElementById('bottomNav').style.display = 'none';
-  document.getElementById('resetBtn').style.display = 'none';
-  document.getElementById('aiResultArea').innerHTML = '';
-  document.getElementById('anonPreview').textContent = 'Upload eerst je bankafschrift...';
-  document.getElementById('filterScroll').innerHTML = '';
-  document.getElementById('txList').innerHTML = '';
-  document.getElementById('bMetrics').innerHTML = '';
-  document.getElementById('bAdvice').innerHTML = '';
-  document.getElementById('bTableBody').innerHTML = '';
+  if(bChartInst){bChartInst.destroy();bChartInst=null;}
+  document.getElementById('bottomNav').classList.add('hidden');
+  document.getElementById('resetBtn').style.display='none';
+  document.getElementById('aiResult').innerHTML='';
+  document.getElementById('anonPreview').textContent='Upload eerst je bankafschrift...';
+  document.getElementById('filterScroll').innerHTML='';
+  document.getElementById('txList').innerHTML='';
+  document.getElementById('bMetrics').innerHTML='';
+  document.getElementById('bAdvice').innerHTML='';
+  document.getElementById('bTableBody').innerHTML='';
   document.getElementById('uploadError')?.remove();
-  document.getElementById('filePdf').value = '';
-  document.getElementById('fileMt940').value = '';
-  document.getElementById('fileCsv').value = '';
+  ['filePdf','fileMt940','fileCsv'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('pageUpload').classList.add('active');
 }
 
-// ── DARK/LIGHT TOGGLE ────────────────────────────────────────────────────────
-function toggleDark() {
-  const r = document.documentElement;
-  const isDark = r.style.getPropertyValue('--bg') !== '#ffffff';
-  if (isDark) {
-    r.style.setProperty('--bg','#f5f5f7'); r.style.setProperty('--surface','#ffffff');
-    r.style.setProperty('--surface2','#f0f0f2'); r.style.setProperty('--border','#d0d0d8');
-    r.style.setProperty('--text','#1a1a2e'); r.style.setProperty('--muted','#666680');
-  } else {
-    r.style.setProperty('--bg','#0d0f14'); r.style.setProperty('--surface','#161820');
-    r.style.setProperty('--surface2','#1e2028'); r.style.setProperty('--border','#2a2d3a');
-    r.style.setProperty('--text','#e8eaf0'); r.style.setProperty('--muted','#6b7080');
-  }
+// ── DARK TOGGLE ───────────────────────────────────────────────────────────────
+function toggleDark(){
+  const r=document.documentElement;
+  const isDark=getComputedStyle(r).getPropertyValue('--bg').trim()==='#0d0f14';
+  if(isDark){r.style.setProperty('--bg','#f0f2f5');r.style.setProperty('--surface','#ffffff');r.style.setProperty('--surface2','#e8eaf0');r.style.setProperty('--border','#d0d4e0');r.style.setProperty('--text','#1a1a2e');r.style.setProperty('--muted','#555577');}
+  else{r.style.setProperty('--bg','#0d0f14');r.style.setProperty('--surface','#161820');r.style.setProperty('--surface2','#1e2028');r.style.setProperty('--border','#2a2d3a');r.style.setProperty('--text','#e8eaf0');r.style.setProperty('--muted','#6b7080');}
 }
+
+// ── PWA ───────────────────────────────────────────────────────────────────────
+if('serviceWorker' in navigator){
+  const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>clients.claim());self.addEventListener('fetch',e=>{if(e.request.url.includes('cdnjs')||e.request.url.includes('fonts')){e.respondWith(caches.open('v1').then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(res=>{c.put(e.request,res.clone());return res;}))));}});`;
+  navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'application/javascript'})));
+}
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('installBanner').classList.remove('hidden');});
+document.getElementById('installBtn').addEventListener('click',()=>{if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(()=>{deferredPrompt=null;document.getElementById('installBanner').classList.add('hidden');});}});
+
+// Belasting event listeners
+['bInc1','bInc2','bKinderen','bJaar','bWoning','bRente'].forEach(id=>{
+  document.getElementById(id)?.addEventListener('input',calcBelasting);
+});
+
+// AI profile listeners
+['profGezin','profWoning','profPijl'].forEach(id=>{
+  document.getElementById(id)?.addEventListener('change',renderAnonPrompt);
+});
 </script>
 </body>
 </html>
