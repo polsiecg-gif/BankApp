@@ -825,122 +825,125 @@ function showUploadError(container, msg) {
 function parseRaboPDFItems(items) {
   const txs = [];
 
-  // Detecteer jaar uit "Verwerkingsdatum: DD-MM-YYYY" tekst
+  // Exacte kolomgrenzen op basis van Rabobank Rabo Standaard afschrift:
+  // Datum:        x ≈ 37
+  // Type:         x ≈ 69
+  // Tegenrek.:    x ≈ 89
+  // Naam/omschr.: x ≈ 205
+  // Bedrag af:    x ≈ 420–480  (debet kolom)
+  // Bedrag bij:   x ≈ 509–580  (credit kolom)
+  const X_NAAM    = 200;  // naam/omschrijving begint hier
+  const X_AF_MIN  = 415;  // bedrag af kolom: alles rechts hiervan...
+  const X_BIJ_MIN = 500;  // ...maar credit kolom begint hier
+  const X_DATUM_MAX = 65; // datum staat altijd links
+
+  // Detecteer jaar
   let detectedYear = new Date().getFullYear();
   for (const item of items) {
     const m = item.text.match(/(\d{2})-(\d{2})-(\d{4})/);
     if (m) { detectedYear = parseInt(m[3]); break; }
   }
 
-  // Groepeer items per Y-regel (items binnen 4px van elkaar = zelfde regel)
-  const rowMap = {};
+  // Groepeer items per Y-positie (binnen 3px = zelfde regel)
+  const rowMap = new Map();
   for (const item of items) {
-    const rowKey = Math.round(item.y / 4) * 4;
-    if (!rowMap[rowKey]) rowMap[rowKey] = [];
-    rowMap[rowKey].push(item);
-  }
-  const rows = Object.keys(rowMap)
-    .map(k => ({ y: parseInt(k), items: rowMap[k].sort((a,b) => a.x - b.x) }))
-    .sort((a,b) => a.y - b.y || a.items[0]?.page - b.items[0]?.page);
-
-  // Detecteer de x-positie van de "Bedrag af" en "Bedrag bij" kolommen
-  // Door te zoeken naar de kolomheaders in de PDF
-  let xAfKolom = 500, xBijKolom = 620; // defaults gebaseerd op screenshot
-  for (const row of rows) {
-    const tekst = row.items.map(i => i.text).join(' ').toLowerCase();
-    if (tekst.includes('bedrag af') || tekst.includes('debet')) {
-      const afItem = row.items.find(i => i.text.toLowerCase().includes('af') || i.text.toLowerCase().includes('debet'));
-      if (afItem) xAfKolom = afItem.x;
-    }
-    if (tekst.includes('bedrag bij') || tekst.includes('credit')) {
-      const bijItem = row.items.find(i => i.text.toLowerCase().includes('bij') || i.text.toLowerCase().includes('credit'));
-      if (bijItem) xBijKolom = bijItem.x;
-    }
+    // Sla header en footer tekst over
+    if (/^(Blad|van|Rekeningafschrift|vervolg|Rabo|Standaard|Ten|name|IBAN|BIC|Datum|Totaal|Rente|datum|Type|Tegenrekening|Naam|Bedrag|CR|D\s*=|ba\s*=|bc\s*=|bg\s*=|tb\s*=|ei\s*=|id\s*=)/.test(item.text)) continue;
+    const rowKey = Math.round(item.y / 3) * 3;
+    if (!rowMap.has(rowKey)) rowMap.set(rowKey, []);
+    rowMap.get(rowKey).push(item);
   }
 
-  // Datum patroon: DD-MM (zonder jaar, Rabobank afschrift stijl)
-  const datumRe = /^(\d{2})-(\d{2})$/;
+  const rows = [...rowMap.entries()]
+    .map(([y, items]) => ({ y: parseInt(y), items: items.sort((a,b) => a.x - b.x) }))
+    .sort((a,b) => a.items[0]?.page - b.items[0]?.page || a.y - b.y);
+
+  const bedragRe = /^\d{1,3}(?:\.\d{3})*,\d{2}$/;
+  const datumRe  = /^\d{2}-\d{2}$/;
+  const typeRe   = /^(ei|id|tb|cb|ba|bc|bg|bv|db|cc|cp|eb|ec|ga|gb|kh|ok|sb|sp|st|te|wb|we|wr)$/i;
 
   let i = 0;
   while (i < rows.length) {
     const row = rows[i];
-    const eersteItem = row.items[0];
+    // Transactie begint met datum (DD-MM) uiterst links
+    const datumItem = row.items.find(it => datumRe.test(it.text) && it.x < X_DATUM_MAX);
+    if (!datumItem) { i++; continue; }
 
-    // Controleer of eerste item op deze rij een datum is (DD-MM)
-    if (!eersteItem || !datumRe.test(eersteItem.text)) { i++; continue; }
-
-    const datumMatch = eersteItem.text.match(datumRe);
-    const d = parseInt(datumMatch[1]);
-    const m = parseInt(datumMatch[2]);
+    // Parse datum
+    const [d, m] = datumItem.text.split('-').map(Number);
     let y = detectedYear;
-    // Als maand in de toekomst ligt t.o.v. nu, vorig jaar
     if (new Date(y, m-1, d) > new Date()) y--;
     const date = new Date(y, m-1, d);
     if (isNaN(date.getTime())) { i++; continue; }
 
-    // Verzamel alle rijen die bij deze transactie horen
-    // Een nieuwe transactie begint pas als er weer een datum-item is
+    // Bepaal type transactie
+    const typeItem = row.items.find(it => typeRe.test(it.text));
+    const type = typeItem?.text.toLowerCase() || '';
+
+    // Verzamel alle rijen van deze transactie
     let chunkItems = [...row.items];
     let j = i + 1;
     while (j < rows.length) {
-      const nextFirst = rows[j].items[0];
-      if (nextFirst && datumRe.test(nextFirst.text)) break;
-      // Stop ook bij kolomhoofd-rijen (bevatten "Rente", "Type", "Bedrag")
-      const rowTxt = rows[j].items.map(r => r.text).join(' ').toLowerCase();
-      if (rowTxt.includes('rentedat') || rowTxt.includes('tegenrekening')) break;
-      chunkItems.push(...rows[j].items);
+      const nextRow = rows[j];
+      const heeftNieuweDatum = nextRow.items.some(it => datumRe.test(it.text) && it.x < X_DATUM_MAX);
+      if (heeftNieuweDatum) break;
+      chunkItems.push(...nextRow.items);
       j++;
     }
 
-    // Splits items in kolommen op basis van x-positie
-    // Kolom "Bedrag af (debet)": x >= xAfKolom - 80 && x < xBijKolom - 40
-    // Kolom "Bedrag bij (credit)": x >= xBijKolom - 40
-    const afItems  = chunkItems.filter(it => it.x >= (xAfKolom - 80) && it.x < (xBijKolom - 40));
-    const bijItems = chunkItems.filter(it => it.x >= (xBijKolom - 40));
-    const descItems = chunkItems.filter(it => it.x < (xAfKolom - 80) && it.text !== eersteItem.text);
-
-    // Bedragkolommen: zoek getallen in de vorm 1.234,56 of 234,56
-    const bedragRe = /^[\d]{1,3}(?:\.[\d]{3})*,\d{2}$/;
-    const afBedrag  = afItems.find(it => bedragRe.test(it.text));
-    const bijBedrag = bijItems.find(it => bedragRe.test(it.text));
+    // Zoek bedragen in de juiste kolommen op basis van x-positie
+    const afItems  = chunkItems.filter(it => bedragRe.test(it.text) && it.x >= X_AF_MIN && it.x < X_BIJ_MIN);
+    const bijItems = chunkItems.filter(it => bedragRe.test(it.text) && it.x >= X_BIJ_MIN);
 
     let amount = 0;
-    if (bijBedrag) {
-      amount = parseFloat(bijBedrag.text.replace(/\./g,'').replace(',','.'));
-    } else if (afBedrag) {
-      amount = -parseFloat(afBedrag.text.replace(/\./g,'').replace(',','.'));
+    const parseBedrag = s => parseFloat(s.replace(/\./g,'').replace(',','.'));
+
+    if (bijItems.length > 0) {
+      // Credit: staat in de rechter kolom
+      amount = parseBedrag(bijItems[0].text);
+    } else if (afItems.length > 0) {
+      // Debet: staat in de linker bedragkolom
+      amount = -parseBedrag(afItems[0].text);
     } else {
-      // Fallback: zoek bedrag ergens in de chunk en bepaal richting via type-kolom
-      const typeItem = chunkItems.find(it => /^(ei|ba|cb|tb|id|gt|st|ic|ga|db)$/i.test(it.text));
-      const type = typeItem?.text.toLowerCase() || '';
+      // Fallback: zoek ergens een bedrag en gebruik type als hint
       const anyBedrag = chunkItems.find(it => bedragRe.test(it.text));
       if (anyBedrag) {
-        const val = parseFloat(anyBedrag.text.replace(/\./g,'').replace(',','.'));
-        // tb = terbeschikkingstelling = bijschrijving (credit)
+        const val = parseBedrag(anyBedrag.text);
+        // tb = eigen rekening bijschrijving, cb = crediteurenbetaling ontvangen
         amount = (type === 'tb' || type === 'cb') ? val : -val;
       }
     }
 
     if (amount === 0) { i = j; continue; }
 
-    // Beschrijving: alles in de naam/omschrijving kolom, schoon maken
-    let desc = descItems
-      .map(it => it.text)
-      .filter(t => !bedragRe.test(t))
-      .filter(t => !/^NL\d{2}/.test(t))                          // geen IBANs
-      .filter(t => !/^(ei|ba|cb|tb|id|gt|st|ic|ga|db)$/i.test(t)) // geen type codes
-      .filter(t => !/betalingskenm/i.test(t))
-      .filter(t => !/verwerkingsdatum/i.test(t))
-      .filter(t => !/transactiereferentie/i.test(t))
-      .filter(t => !/kenmerk machtiging/i.test(t))
-      .filter(t => !/incassant id/i.test(t))
-      .filter(t => t.length > 1)
-      .join(' ')
-      .replace(/\s+/g,' ')
-      .trim()
-      .substring(0, 60);
+    // Beschrijving: items in naam/omschrijving kolom (x >= X_NAAM)
+    // Filter ruis eruit
+    const naamItems = chunkItems.filter(it =>
+      it.x >= X_NAAM &&
+      !bedragRe.test(it.text) &&
+      !typeRe.test(it.text) &&
+      !datumRe.test(it.text) &&
+      !/^NL\d{2}[A-Z]{4}/.test(it.text) &&   // IBAN
+      !/^[A-Z]{2}\d{2}[A-Z]{4}/.test(it.text) && // buitenlands IBAN
+      !/betalingskenm/i.test(it.text) &&
+      !/verwerkingsdatum/i.test(it.text) &&
+      !/transactiereferentie/i.test(it.text) &&
+      !/kenmerk\s+machtiging/i.test(it.text) &&
+      !/incassant\s+id/i.test(it.text) &&
+      !/^NL\d+ZZZ/.test(it.text) &&           // incassant IBAN
+      !/^[A-Z0-9]{10,}$/.test(it.text) &&     // lange referentiecodes
+      it.text.length > 1
+    );
 
-    if (!desc) desc = 'Onbekend';
+    // Neem alleen de eerste 2 regels (naam + evt. extra omschrijving)
+    const eersteY = naamItems[0]?.y || 0;
+    const desc = naamItems
+      .filter(it => it.y <= eersteY + 25) // max 2 regels
+      .map(it => it.text)
+      .join(' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .substring(0, 60) || 'Onbekend';
 
     txs.push({ date, dateStr: date.toISOString().split('T')[0], desc, amount, cat: categorize(desc, amount) });
     i = j;
