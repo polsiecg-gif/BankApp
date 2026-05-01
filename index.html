@@ -365,4 +365,675 @@ body::before {
 .tip-body p { font-size:12px; color:var(--muted); line-height:1.6; }
 .tip-saving { color:var(--income); font-size:11px; margin-top:4px; font-weight:600; }
 
-.spinner { width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linea
+.spinner { width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite; }
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-row { display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;padding:16px 0; }
+
+/* ── SECTION LABELS ── */
+.section-label {
+  font-size:10px; color:var(--muted); letter-spacing:.1em;
+  text-transform:uppercase; margin-bottom:8px; margin-top:4px;
+  padding: 0 2px;
+}
+
+/* ── INSTALL BANNER ── */
+.install-banner {
+  position:fixed; bottom: calc(60px + env(safe-area-inset-bottom, 0px) + 8px);
+  left:12px; right:12px;
+  background: var(--surface);
+  border:1px solid var(--accent);
+  border-radius:14px;
+  padding:14px 16px;
+  display:flex; align-items:center; gap:12px;
+  z-index:200;
+  box-shadow: 0 4px 30px rgba(0,0,0,.5);
+  animation: slideUp .4s ease;
+}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.install-banner.hidden { display:none; }
+.install-text { flex:1; }
+.install-text strong { font-family:'Syne',sans-serif; font-size:13px; display:block; margin-bottom:2px; }
+.install-text span { font-size:11px; color:var(--muted); }
+.install-btn { background:var(--accent);color:#0d0f14;border:none;border-radius:8px;padding:8px 14px;font-family:'DM Mono',monospace;font-size:12px;font-weight:600;cursor:pointer; }
+.install-dismiss { background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:4px; }
+
+/* ── CAT COLORS ── */
+.bg-boodschappen { background:#ffd16615; }
+.bg-horeca { background:#ef8c8c15; }
+.bg-transport { background:#5c8fff15; }
+.bg-abonnementen { background:#c77dff15; }
+.bg-wonen { background:#4cc9f015; }
+.bg-gezondheid { background:#62e8a015; }
+.bg-inkomen { background:#c8f56215; }
+.bg-overig { background:#8b8fa815; }
+.bg-kleding { background:#ff9a3c15; }
+.bg-sparen { background:#38d9d915; }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo"><span class="logo-dot"></span>Budget Inzicht</div>
+  <div class="topbar-actions">
+    <div class="icon-btn" id="resetBtn" onclick="resetApp()" title="Nieuw bestand" style="display:none">↩</div>
+    <div class="icon-btn" onclick="toggleDark()">🌗</div>
+  </div>
+</div>
+
+<!-- INSTALL BANNER -->
+<div class="install-banner hidden" id="installBanner">
+  <div class="install-text">
+    <strong>📲 Installeer als app</strong>
+    <span>Zet op je startscherm voor snelle toegang</span>
+  </div>
+  <button class="install-btn" id="installBtn">Installeer</button>
+  <button class="install-dismiss" onclick="document.getElementById('installBanner').classList.add('hidden')">×</button>
+</div>
+
+<!-- SCROLL AREA -->
+<div class="scroll-area" id="scrollArea">
+
+  <!-- PAGE: UPLOAD -->
+  <div class="page active" id="pageUpload">
+    <div class="upload-hero">
+      <span class="upload-hero-icon">💳</span>
+      <h1>Budget Inzicht</h1>
+      <p>Upload je Rabobank afschrift en krijg direct inzicht.<br>Alles wordt <strong style="color:var(--accent)">lokaal</strong> verwerkt op jouw telefoon.</p>
+    </div>
+
+    <!-- FORMAT TABS -->
+    <div style="display:flex;gap:8px;margin-bottom:14px;">
+      <button class="fmt-tab active" id="tab-pdf" onclick="switchTab('pdf')">📄 PDF</button>
+      <button class="fmt-tab" id="tab-mt940" onclick="switchTab('mt940')">📋 MT940</button>
+      <button class="fmt-tab" id="tab-csv" onclick="switchTab('csv')">📊 CSV</button>
+    </div>
+
+    <!-- PDF UPLOAD -->
+    <div id="zone-pdf">
+      <div class="upload-card" onclick="document.getElementById('filePdf').click()">
+        <input type="file" id="filePdf" accept=".pdf" style="display:none">
+        <div class="upload-card-icon">📄</div>
+        <div class="upload-card-title">Tik om PDF te kiezen</div>
+        <div class="upload-card-sub">Rabobank rekeningafschrift (.pdf)<br><small style="color:var(--accent)">100% lokaal — niets verlaat je telefoon</small></div>
+      </div>
+      <div id="pdfStatus" style="display:none;text-align:center;padding:16px;color:var(--muted);font-size:12px;">
+        <div class="spinner" style="margin:0 auto 8px;display:block;width:20px;height:20px;"></div>
+        PDF wordt gelezen...
+      </div>
+      <div class="howto-card" style="margin-top:14px;">
+        <div class="howto-title">↓ HOE DOWNLOAD JE EEN PDF UIT RABOBANK?</div>
+        <div class="howto-step"><div class="step-n">01</div><div class="step-t"><strong>Open de Rabo app</strong>Ga naar Instellingen → Documenten → Rekeningafschriften</div></div>
+        <div class="howto-step"><div class="step-n">02</div><div class="step-t"><strong>Kies maand & rekening</strong>Tik op het afschrift → het opent als PDF</div></div>
+        <div class="howto-step"><div class="step-n">03</div><div class="step-t"><strong>Sla op & upload hier</strong>Deel/sla de PDF op → tik hierboven op "Tik om PDF te kiezen"</div></div>
+      </div>
+    </div>
+
+    <!-- MT940 UPLOAD -->
+    <div id="zone-mt940" style="display:none;">
+      <div class="upload-card" onclick="document.getElementById('fileMt940').click()">
+        <input type="file" id="fileMt940" accept=".swi,.sta,.mt940,.txt" style="display:none">
+        <div class="upload-card-icon">📋</div>
+        <div class="upload-card-title">Tik om MT940 te kiezen</div>
+        <div class="upload-card-sub">MT940 exportbestand (.swi of .sta)<br><small style="color:var(--accent)">100% lokaal — niets verlaat je telefoon</small></div>
+      </div>
+      <div class="howto-card" style="margin-top:14px;">
+        <div class="howto-title">↓ HOE DOWNLOAD JE MT940 UIT RABOBANK? (via desktop)</div>
+        <div class="howto-step"><div class="step-n">01</div><div class="step-t"><strong>Login op rabo.nl (desktop)</strong>Ga naar Betalen en ontvangen → Transacties downloaden</div></div>
+        <div class="howto-step"><div class="step-n">02</div><div class="step-t"><strong>Kies MT940 formaat</strong>Selecteer "MT940 Structured (.swi)" als bestandsformaat</div></div>
+        <div class="howto-step"><div class="step-n">03</div><div class="step-t"><strong>Download & upload hier</strong>Stuur het bestand naar je telefoon en upload het hierboven</div></div>
+      </div>
+    </div>
+
+    <!-- CSV UPLOAD -->
+    <div id="zone-csv" style="display:none;">
+      <div class="upload-card" onclick="document.getElementById('fileCsv').click()">
+        <input type="file" id="fileCsv" accept=".csv,.txt" style="display:none">
+        <div class="upload-card-icon">📊</div>
+        <div class="upload-card-title">Tik om CSV te kiezen</div>
+        <div class="upload-card-sub">Rabobank CSV exportbestand<br><small style="color:var(--accent)">100% lokaal — niets verlaat je telefoon</small></div>
+      </div>
+    </div>
+
+    <button class="btn-full btn-ghost" onclick="loadDemo()" style="margin-top:12px;">🎭 Demo data proberen</button>
+  </div>
+
+  <!-- PAGE: DASHBOARD -->
+  <div class="page" id="pageDash">
+    <div class="period-bar">
+      <span id="periodLabel">Laden...</span>
+      <strong id="txCountLabel">0 transacties</strong>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card s-income">
+        <div class="stat-label">Inkomsten</div>
+        <div class="stat-value pos" id="statIncome">€0</div>
+        <div class="stat-sub" id="statIncomeCount"></div>
+      </div>
+      <div class="stat-card s-expense">
+        <div class="stat-label">Uitgaven</div>
+        <div class="stat-value neg" id="statExpense">€0</div>
+        <div class="stat-sub" id="statExpenseCount"></div>
+      </div>
+      <div class="stat-card s-balance">
+        <div class="stat-label">Netto saldo</div>
+        <div class="stat-value neu" id="statBalance">€0</div>
+        <div class="stat-sub">over deze periode</div>
+      </div>
+      <div class="stat-card s-savings">
+        <div class="stat-label">Spaarquote</div>
+        <div class="stat-value neu" id="statSavings">0%</div>
+        <div class="stat-sub">van inkomsten</div>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title">Uitgaven per categorie</div>
+      <canvas id="catChart" height="200"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Per maand</div>
+      <canvas id="monthChart" height="180"></canvas>
+    </div>
+  </div>
+
+  <!-- PAGE: TRANSACTIONS -->
+  <div class="page" id="pageTx">
+    <div class="section-label">Filter op categorie</div>
+    <div class="filter-scroll" id="filterScroll"></div>
+    <div id="txList" class="tx-list"></div>
+  </div>
+
+  <!-- PAGE: AI -->
+  <div class="page" id="pageAI">
+    <div class="ai-header-card">
+      <div class="ai-badge"><div class="ai-dot"></div>AI ANALYSE</div>
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:17px;margin-bottom:6px;">Persoonlijke bespaartips</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.6;">Claude analyseert jouw uitgavenpatroon en geeft concrete, persoonlijke adviezen.</div>
+    </div>
+
+    <div class="privacy-note">
+      🔒 <strong style="color:var(--text)">Hoe werkt de privacy?</strong><br>
+      Je gegevens worden <strong>geanonimiseerd</strong> voordat ze worden verstuurd — geen namen, geen rekeningnummers. Je kunt de prompt eerst bekijken en kopiëren om zelf te plakken in Claude.ai als je liever niets automatisch verstuurt.
+    </div>
+
+    <div class="section-label">Geanonimiseerde prompt (wat er verstuurd wordt)</div>
+    <div class="anon-preview" id="anonPreview">Upload eerst je bankafschrift...</div>
+
+    <button class="copy-btn" onclick="copyPrompt()">📋 Kopieer prompt (plak zelf in Claude.ai)</button>
+    <button class="btn-full btn-primary" id="aiAnalyzeBtn" onclick="runAIAnalysis()">✨ Automatisch analyseren via AI</button>
+
+    <div id="aiResultArea"></div>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav" id="bottomNav" style="display:none">
+  <div class="nav-item active" id="nav-dash" onclick="showPage('pageDash','nav-dash')">
+    <span class="nav-icon">📊</span>
+    <span>Overzicht</span>
+  </div>
+  <div class="nav-item" id="nav-tx" onclick="showPage('pageTx','nav-tx')">
+    <span class="nav-icon">📋</span>
+    <span>Transacties</span>
+  </div>
+  <div class="nav-item" id="nav-ai" onclick="showPage('pageAI','nav-ai')">
+    <span class="nav-icon">💡</span>
+    <span>AI Tips</span>
+  </div>
+</div>
+
+<script>
+// ── PWA SERVICE WORKER ────────────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  const sw = `
+    self.addEventListener('install', e => self.skipWaiting());
+    self.addEventListener('activate', e => clients.claim());
+    self.addEventListener('fetch', e => {
+      if (e.request.url.includes('fonts.googleapis') || e.request.url.includes('cdnjs')) {
+        e.respondWith(caches.open('v1').then(c => c.match(e.request).then(r => r || fetch(e.request).then(res => { c.put(e.request, res.clone()); return res; }))));
+      }
+    });
+  `;
+  const blob = new Blob([sw], {type:'application/javascript'});
+  navigator.serviceWorker.register(URL.createObjectURL(blob));
+}
+
+// ── INSTALL PROMPT ────────────────────────────────────────────────────────────
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('installBanner').classList.remove('hidden');
+});
+document.getElementById('installBtn').addEventListener('click', () => {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => {
+      deferredPrompt = null;
+      document.getElementById('installBanner').classList.add('hidden');
+    });
+  }
+});
+
+// ── DATA ──────────────────────────────────────────────────────────────────────
+let allTx = [], filteredCat = 'Alle';
+let charts = {};
+
+// ── CATEGORIES ────────────────────────────────────────────────────────────────
+const CATS = [
+  { name:'Inkomen',       cls:'inkomen',       emoji:'💶', kw:['salaris','loon','inkomen','pensioen','uitkering','freelance','betaling ontvangen'] },
+  { name:'Sparen',        cls:'sparen',        emoji:'🏦', kw:['spaarrekening','spaarpot','sparen'] },
+  { name:'Boodschappen',  cls:'boodschappen',  emoji:'🛒', kw:['albert heijn','jumbo','lidl','aldi','plus supermarkt','dirk','vomar','ah ','deen','supermarkt'] },
+  { name:'Horeca',        cls:'horeca',        emoji:'🍔', kw:['restaurant','cafe ','café','mcdonalds','burger king','pizza','starbucks','thuisbezorgd','deliveroo','uber eats','takeaway','snackbar','bakker'] },
+  { name:'Transport',     cls:'transport',     emoji:'🚗', kw:['ns ','ns.nl','ov-chipkaart','gvb','ret ','htm ','connexxion','arriva','benzine','shell','bp ','esso','tango ','parkeren','parking','taxi','uber','bolt ','anwb','wegenbelasting'] },
+  { name:'Abonnementen',  cls:'abonnementen',  emoji:'📱', kw:['netflix','spotify','youtube','amazon prime','disney','hbo','ziggo','kpn','t-mobile','vodafone','tele2','adobe','microsoft','apple.com','google','dropbox','gym','fitness','basic-fit'] },
+  { name:'Wonen',         cls:'wonen',         emoji:'🏠', kw:['huur','hypotheek','energie','nuon','vattenfall','essent','eneco','waterbedrijf','gemeentebelasting','verzekering','woning','electriciteit','gas '] },
+  { name:'Gezondheid',    cls:'gezondheid',    emoji:'💊', kw:['apotheek','huisarts','tandarts','ziekenhuis','fysiotherap','zorgverzekering','cz ','menzis','vgz','zilveren kruis','drogist','etos','kruidvat'] },
+  { name:'Kleding',       cls:'kleding',       emoji:'👕', kw:['h&m','zara','uniqlo','primark','wehkamp','bol.com','zalando','coolblue','action ','mediamarkt','ikea','hema'] },
+  { name:'Overig',        cls:'overig',        emoji:'📦', kw:[] }
+];
+
+function categorize(desc, amount) {
+  if (amount > 0) return CATS[0];
+  const d = desc.toLowerCase();
+  for (const c of CATS.slice(1)) {
+    if (c.kw.some(k => d.includes(k))) return c;
+  }
+  return CATS[CATS.length-1];
+}
+
+// ── FORMAT TABS ──────────────────────────────────────────────────────────────
+function switchTab(fmt) {
+  ['pdf','mt940','csv'].forEach(f => {
+    document.getElementById('zone-'+f).style.display = f===fmt ? 'block' : 'none';
+    document.getElementById('tab-'+f).classList.toggle('active', f===fmt);
+  });
+}
+
+// ── PDF PARSE (Rabobank PDF) ──────────────────────────────────────────────────
+async function parsePDF(file) {
+  const status = document.getElementById('pdfStatus');
+  status.style.display = 'block';
+  try {
+    const buf = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({data: buf}).promise;
+    let fullText = '';
+    for (let p = 1; p <= pdf.numPages; p++) {
+      const page = await pdf.getPage(p);
+      const content = await page.getTextContent();
+      fullText += content.items.map(i => i.str).join(' ') + '\n';
+    }
+    status.style.display = 'none';
+    return parseRaboPDFText(fullText);
+  } catch(e) {
+    status.style.display = 'none';
+    throw e;
+  }
+}
+
+function parseRaboPDFText(text) {
+  const txs = [];
+  // Rabobank PDF patterns — date dd-mm-yyyy or dd/mm/yyyy, then description, then amount
+  // Pattern: date + omschrijving + bedrag (C/D of +/-)
+  const lines = text.split(/\n/);
+
+  // Try to find transaction lines — Rabobank afschrift format:
+  // "01-01-2025 Omschrijving ... 1.234,56 C" or similar
+  const dateRe = /(\d{2}[-\/]\d{2}[-\/]\d{4})/;
+  const amtRe = /([\d\.]+,\d{2})\s*([CD]|Bij|Af)?/i;
+
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i].trim();
+    const dateMatch = line.match(dateRe);
+    if (dateMatch) {
+      const [d, m, y] = dateMatch[1].replace(/\//g,'-').split('-');
+      const date = new Date(`${y}-${m}-${d}`);
+      if (isNaN(date)) { i++; continue; }
+
+      // Collect text until next date or end
+      let chunk = line;
+      let j = i+1;
+      while (j < lines.length && j < i+5 && !lines[j].match(dateRe)) {
+        chunk += ' ' + lines[j].trim();
+        j++;
+      }
+
+      // Find amount
+      const amtMatches = [...chunk.matchAll(/([\d\.]+,\d{2})\s*([CDcd]|Bij|Af)?/g)];
+      if (amtMatches.length > 0) {
+        const last = amtMatches[amtMatches.length - 1];
+        let amtStr = last[1].replace(/\./g,'').replace(',','.');
+        let amount = parseFloat(amtStr);
+        const sign = (last[2] || '').toUpperCase();
+        if (sign === 'D' || sign === 'AF') amount = -amount;
+        else if (sign === 'C' || sign === 'BIJ') amount = Math.abs(amount);
+        else {
+          // Guess from context: if chunk has "af" or "debet" → negative
+          if (/\baf\b|\bdebet\b|\bdebit\b/i.test(chunk)) amount = -Math.abs(amount);
+        }
+
+        // Extract description (between date and amount)
+        let desc = chunk
+          .replace(dateMatch[0], '')
+          .replace(last[0], '')
+          .replace(/\s+/g, ' ')
+          .trim()
+          .substring(0, 60);
+
+        if (!isNaN(amount) && amount !== 0 && desc.length > 1) {
+          txs.push({ date, dateStr: date.toISOString().split('T')[0], desc, amount, cat: categorize(desc, amount) });
+        }
+      }
+      i = j;
+    } else {
+      i++;
+    }
+  }
+  return txs.sort((a,b) => b.date - a.date);
+}
+
+// ── MT940 PARSE ───────────────────────────────────────────────────────────────
+function parseMT940(text) {
+  const txs = [];
+  // MT940 transaction blocks start with :61:
+  const blocks = text.split(/(?=:61:)/);
+  for (const block of blocks) {
+    const t61 = block.match(/:61:(\d{6})(\d{6})?(C|D|RC|RD)(\d+,\d+)/);
+    if (!t61) continue;
+    try {
+      const dateStr6 = t61[1]; // YYMMDD
+      const y = 2000 + parseInt(dateStr6.slice(0,2));
+      const m = parseInt(dateStr6.slice(2,4));
+      const d = parseInt(dateStr6.slice(4,6));
+      const date = new Date(y, m-1, d);
+      const isDebit = t61[3] === 'D' || t61[3] === 'RD';
+      const amtStr = t61[4].replace(',','.');
+      const absAmt = parseFloat(amtStr);
+      const amount = isDebit ? -absAmt : absAmt;
+
+      // Description from :86: field
+      const descMatch = block.match(/:86:([\s\S]*?)(?=:6[012]:|$)/);
+      let desc = descMatch ? descMatch[1].replace(/\n/g,' ').replace(/\s+/g,' ').trim() : '';
+      // Clean up MT940 field tags like /REMI/ /NAME/ etc.
+      desc = desc.replace(/\/[A-Z]+\//g, ' ').replace(/\s+/g,' ').trim().substring(0,80);
+      if (!desc) desc = 'Onbekend';
+
+      txs.push({ date, dateStr: date.toISOString().split('T')[0], desc, amount, cat: categorize(desc, amount) });
+    } catch(e) {}
+  }
+  return txs.sort((a,b) => b.date - a.date);
+}
+
+// ── CSV PARSE ─────────────────────────────────────────────────────────────────
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  const txs = [];
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+    const cols = []; let inQ = false, cur = '';
+    for (let c = 0; c < line.length; c++) {
+      if (line[c] === '"') { inQ = !inQ; continue; }
+      if (line[c] === ',' && !inQ) { cols.push(cur); cur = ''; continue; }
+      cur += line[c];
+    }
+    cols.push(cur);
+    if (cols.length < 5) continue;
+    try {
+      let dateStr = cols[4]?.trim() || cols[0]?.trim();
+      let amtStr = cols[6]?.trim() || cols[4]?.trim();
+      let desc = (cols[10] || cols[9] || cols[8] || cols[5] || '').trim();
+      let date;
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) date = new Date(dateStr);
+      else if (/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) { const [d,m,y]=dateStr.split('-'); date=new Date(`${y}-${m}-${d}`); }
+      else continue;
+      const amount = parseFloat(amtStr.replace(',','.').replace(/[^0-9.\-]/g,''));
+      if (isNaN(amount)) continue;
+      txs.push({ date, dateStr: date.toISOString().split('T')[0], desc: desc||'Onbekend', amount, cat: categorize(desc, amount) });
+    } catch(e){}
+  }
+  return txs.sort((a,b) => b.date - a.date);
+}
+
+// ── FILE UPLOAD HANDLERS ──────────────────────────────────────────────────────
+document.getElementById('filePdf').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    const txs = await parsePDF(file);
+    if (!txs.length) { alert('Geen transacties gevonden in de PDF.\n\nTip: Probeer het MT940 formaat via desktop.'); return; }
+    process(txs);
+  } catch(err) {
+    alert('Kon de PDF niet lezen. Probeer een ander formaat of de demo.');
+  }
+});
+
+document.getElementById('fileMt940').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const txs = parseMT940(ev.target.result);
+    if (!txs.length) { alert('Geen transacties gevonden. Controleer of dit een MT940 bestand is.'); return; }
+    process(txs);
+  };
+  reader.readAsText(file, 'UTF-8');
+});
+
+document.getElementById('fileCsv').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const txs = parseCSV(ev.target.result);
+    if (!txs.length) { alert('Geen transacties gevonden. Controleer of dit een Rabobank CSV is.'); return; }
+    process(txs);
+  };
+  reader.readAsText(file, 'UTF-8');
+});
+function loadDemo() {
+  const now = new Date();
+  const raw = [
+    ['Salaris werkgever BV',2850],['Freelance project',450],
+    ['Albert Heijn boodschappen',-67.5],['Albert Heijn',-43.2],['Jumbo supermarkt',-89.3],['Lidl wekelijks',-62.3],['Albert Heijn',-38.9],['Albert Heijn',-54.2],
+    ['Netflix',-15.99],['Spotify',-9.99],['Ziggo internet',-47.5],['Disney+',-8.99],['Basic-Fit monthly',-29.99],['Adobe Creative Cloud',-54.99],['T-Mobile',-35],['Amazon Prime',-2.99],['Google One',-1.99],
+    ['NS Reizen',-52.4],['Shell benzine',-78],['GVB OV',-20],['Parkeren centrum',-8],['Uber rit',-24],['NS maandkaart',-48],
+    ['Huur betaling',-950],['Vattenfall energie',-123],
+    ['Thuisbezorgd pizza',-32.5],['McDonald\'s',-12.8],['Restaurant',-67],['Starbucks',-5.4],['Café',-18.5],['Bakker Thijs',-6.5],
+    ['Zilveren Kruis',-149],['Apotheek',-14.5],
+    ['Zalando kleding',-89],['H&M',-54],['IKEA',-234],['Action',-28.5],
+    ['Spaarrekening',-200]
+  ];
+  const txs = raw.map(([desc, amount]) => {
+    const date = new Date(now);
+    date.setDate(date.getDate() - Math.floor(Math.random()*90));
+    return { date, dateStr: date.toISOString().split('T')[0], desc, amount, cat: categorize(desc, amount) };
+  }).sort((a,b) => b.date - a.date);
+  process(txs);
+}
+
+
+
+// ── PROCESS ───────────────────────────────────────────────────────────────────
+function process(txs) {
+  allTx = txs;
+  filteredCat = 'Alle';
+  document.getElementById('pageUpload').classList.remove('active');
+  document.getElementById('bottomNav').style.display = 'flex';
+  document.getElementById('resetBtn').style.display = 'flex';
+  document.getElementById('installBanner').classList.add('hidden');
+  showPage('pageDash', 'nav-dash');
+  renderDash();
+  renderTxList();
+  renderAnonPrompt();
+}
+
+function fmt(n) { return new Intl.NumberFormat('nl-NL',{style:'currency',currency:'EUR'}).format(n); }
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────────
+function renderDash() {
+  const inc = allTx.filter(t=>t.amount>0).reduce((s,t)=>s+t.amount,0);
+  const exp = Math.abs(allTx.filter(t=>t.amount<0).reduce((s,t)=>s+t.amount,0));
+  const net = inc - exp;
+  const rate = inc > 0 ? Math.round((net/inc)*100) : 0;
+  document.getElementById('statIncome').textContent = fmt(inc);
+  document.getElementById('statExpense').textContent = fmt(exp);
+  document.getElementById('statBalance').textContent = fmt(net);
+  document.getElementById('statBalance').className = 'stat-value ' + (net>=0?'pos':'neg');
+  document.getElementById('statSavings').textContent = rate + '%';
+  document.getElementById('statIncomeCount').textContent = allTx.filter(t=>t.amount>0).length + ' transacties';
+  document.getElementById('statExpenseCount').textContent = allTx.filter(t=>t.amount<0).length + ' transacties';
+  document.getElementById('txCountLabel').textContent = allTx.length + ' transacties';
+  const dates = allTx.map(t=>t.date);
+  const mn = new Date(Math.min(...dates)), mx = new Date(Math.max(...dates));
+  document.getElementById('periodLabel').textContent = mn.toLocaleDateString('nl-NL',{day:'numeric',month:'short'}) + ' – ' + mx.toLocaleDateString('nl-NL',{day:'numeric',month:'short',year:'numeric'});
+
+  Object.values(charts).forEach(c=>c.destroy()); charts={};
+
+  // Cat donut
+  const catT = {};
+  allTx.filter(t=>t.amount<0&&t.cat.name!=='Sparen').forEach(t=>{ catT[t.cat.name]=(catT[t.cat.name]||0)+Math.abs(t.amount); });
+  const catS = Object.entries(catT).sort((a,b)=>b[1]-a[1]);
+  charts.cat = new Chart(document.getElementById('catChart'), {
+    type:'doughnut',
+    data:{ labels:catS.map(c=>c[0]), datasets:[{data:catS.map(c=>c[1]),backgroundColor:['#ffd166','#ef8c8c','#5c8fff','#c77dff','#4cc9f0','#62e8a0','#ff9a3c','#8b8fa8'],borderWidth:0}] },
+    options:{ responsive:true, plugins:{ legend:{ position:'bottom', labels:{color:'#e8eaf0',font:{family:'DM Mono',size:10},padding:8,boxWidth:10} }, tooltip:{callbacks:{label:ctx=>` ${fmt(ctx.parsed)}`},backgroundColor:'#1e2028',titleColor:'#e8eaf0',bodyColor:'#8b8fa8',borderColor:'#2a2d3a',borderWidth:1} } }
+  });
+
+  // Monthly bar
+  const months = {};
+  allTx.forEach(t=>{
+    const k = t.date.toLocaleDateString('nl-NL',{month:'short',year:'2-digit'});
+    if(!months[k]) months[k]={inc:0,exp:0};
+    if(t.amount>0) months[k].inc+=t.amount; else months[k].exp+=Math.abs(t.amount);
+  });
+  const mK = Object.keys(months).slice(-6);
+  charts.month = new Chart(document.getElementById('monthChart'), {
+    type:'bar',
+    data:{ labels:mK, datasets:[
+      {label:'Inkomsten',data:mK.map(k=>months[k]?.inc||0),backgroundColor:'rgba(98,232,160,.7)',borderRadius:4},
+      {label:'Uitgaven',data:mK.map(k=>months[k]?.exp||0),backgroundColor:'rgba(255,107,107,.7)',borderRadius:4}
+    ]},
+    options:{ responsive:true, plugins:{ legend:{labels:{color:'#e8eaf0',font:{family:'DM Mono',size:10},padding:8,boxWidth:10}}, tooltip:{callbacks:{label:ctx=>` ${fmt(ctx.parsed.y)}`},backgroundColor:'#1e2028',titleColor:'#e8eaf0',bodyColor:'#8b8fa8',borderColor:'#2a2d3a',borderWidth:1} }, scales:{ x:{grid:{color:'#2a2d3a'},ticks:{color:'#6b7080',font:{family:'DM Mono',size:10}}}, y:{grid:{color:'#2a2d3a'},ticks:{color:'#6b7080',font:{family:'DM Mono',size:10},callback:v=>'€'+Math.round(v)}} } }
+  });
+}
+
+// ── TRANSACTIONS ──────────────────────────────────────────────────────────────
+function renderTxList() {
+  const cats = ['Alle', ...new Set(allTx.map(t=>t.cat.name))];
+  document.getElementById('filterScroll').innerHTML = cats.map(c =>
+    `<button class="chip ${c===filteredCat?'active':''}" onclick="filterTx('${c}')">${c}</button>`
+  ).join('');
+  const txs = filteredCat==='Alle' ? allTx : allTx.filter(t=>t.cat.name===filteredCat);
+  document.getElementById('txList').innerHTML = txs.slice(0,300).map(t => `
+    <div class="tx-item">
+      <div class="tx-cat-icon bg-${t.cat.cls}">${t.cat.emoji}</div>
+      <div class="tx-info">
+        <div class="tx-desc">${t.desc}</div>
+        <div class="tx-date">${t.date.toLocaleDateString('nl-NL',{day:'2-digit',month:'short',year:'numeric'})} · ${t.cat.name}</div>
+      </div>
+      <div class="tx-amount ${t.amount>0?'cr':'dr'}">${fmt(t.amount)}</div>
+    </div>
+  `).join('');
+}
+
+function filterTx(cat) {
+  filteredCat = cat;
+  renderTxList();
+}
+
+// ── ANON PROMPT ───────────────────────────────────────────────────────────────
+function buildAnonPrompt() {
+  const catT = {};
+  allTx.filter(t=>t.amount<0).forEach(t=>{ catT[t.cat.name]=(catT[t.cat.name]||0)+Math.abs(t.amount); });
+  const inc = allTx.filter(t=>t.amount>0).reduce((s,t)=>s+t.amount,0);
+  const exp = Object.values(catT).reduce((s,v)=>s+v,0);
+  const months = Math.max(1, Math.ceil(allTx.length / 15));
+  const rate = inc > 0 ? Math.round(((inc-exp)/inc)*100) : 0;
+
+  return `Je bent een vriendelijke financieel adviseur. Analyseer dit uitgavenpatroon en geef 4-5 concrete, persoonlijke bespaartips in het Nederlands.
+
+FINANCIEEL OVERZICHT (${months} maand/maanden, geanonimiseerd):
+- Totaal inkomsten: ${fmt(inc)}
+- Totaal uitgaven: ${fmt(exp)}
+- Netto: ${fmt(inc-exp)}
+- Spaarquote: ${rate}%
+
+UITGAVEN PER CATEGORIE:
+${Object.entries(catT).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`- ${k}: ${fmt(v)}`).join('\n')}
+
+Geef praktische, realistische tips. Focus op de categorieën waar het meeste te besparen valt. Noem ook positieve dingen als de cijfers er goed uitzien.`;
+}
+
+function renderAnonPrompt() {
+  if (!allTx.length) return;
+  document.getElementById('anonPreview').textContent = buildAnonPrompt();
+}
+
+function copyPrompt() {
+  const prompt = buildAnonPrompt();
+  navigator.clipboard.writeText(prompt).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = '✅ Gekopieerd! Plak in Claude.ai';
+    setTimeout(() => { btn.textContent = '📋 Kopieer prompt (plak zelf in Claude.ai)'; }, 3000);
+  }).catch(() => {
+    alert('Kon niet kopiëren. Selecteer de tekst handmatig.');
+  });
+}
+
+// ── AI ANALYSIS ───────────────────────────────────────────────────────────────
+async function runAIAnalysis() {
+  const btn = document.getElementById('aiAnalyzeBtn');
+  const area = document.getElementById('aiResultArea');
+  btn.disabled = true; btn.textContent = '⏳ Analyseren...';
+  area.innerHTML = `<div class="loading-row"><div class="spinner"></div>Claude analyseert je data...</div>`;
+
+  const prompt = buildAnonPrompt() + `\n\nReageer ALLEEN in JSON (geen markdown):\n[{"icon":"emoji","type":"saving of warning","title":"Korte titel","desc":"Uitleg","saving":"bedrag of null"}]`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1000, messages:[{role:'user',content:prompt}] })
+    });
+    const data = await res.json();
+    const text = data.content?.map(b=>b.text||'').join('') || '';
+    const tips = JSON.parse(text.replace(/```json|```/g,'').trim());
+    area.innerHTML = `<div style="margin-top:12px;font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;">AI Bespaartips</div>` +
+      tips.map(t=>`<div class="tip-item ${t.type==='warning'?'warn':'save'}"><span class="tip-icon">${t.icon||'💡'}</span><div class="tip-body"><strong>${t.title}</strong><p>${t.desc}</p>${t.saving?`<div class="tip-saving">💰 ${t.saving}</div>`:''}</div></div>`).join('');
+  } catch(e) {
+    area.innerHTML = `<div style="color:var(--muted);font-size:12px;padding:12px">Fout bij ophalen. Gebruik de kopieer-optie om handmatig te analyseren.</div>`;
+  }
+  btn.disabled = false; btn.textContent = '🔄 Opnieuw analyseren';
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────────────────
+function showPage(pageId, navId) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+  document.getElementById(navId).classList.add('active');
+  document.getElementById('scrollArea').scrollTop = 0;
+}
+
+// ── RESET ─────────────────────────────────────────────────────────────────────
+function resetApp() {
+  allTx = [];
+  Object.values(charts).forEach(c=>c.destroy()); charts={};
+  document.getElementById('bottomNav').style.display = 'none';
+  document.getElementById('resetBtn').style.display = 'none';
+  document.getElementById('aiResultArea').innerHTML = '';
+  document.getElementById('fileInput').value = '';
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('pageUpload').classList.add('active');
+}
+
+// ── DARK/LIGHT TOGGLE (bonus) ─────────────────────────────────────────────────
+function toggleDark() {}
+</script>
+</body>
+</html>
